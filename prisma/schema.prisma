@@ -1,0 +1,384 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Persona {
+
+  id_persona Int @id @default(autoincrement())
+  nombre String
+  apellido String
+  usuario Usuario?
+
+}
+
+model Usuario {
+
+  id_usuario Int @id @default(autoincrement())
+  nombre_usuario String
+  contrasenia String
+  fecha_creacion DateTime
+
+  //un usuario pertenece a una sola persona
+  persona Persona @relation(fields: [id_persona], references: [id_persona])
+  id_persona Int @unique 
+
+  //un usuario tiene un solo rol
+  rol Rol @relation(fields: [id_rol], references: [id_rol])
+  id_rol Int
+
+  //un usuario tiene un solo perfil
+  perfil Perfil?
+
+  //un usuario puede enviar varias sugerencias con el tiempo
+  sugerencia Sugerencia[]
+
+  //un usuario puede generar varios planes de dieta y ejercicios
+  planes Plan[] @relation("PlanUsuario")
+
+  //un usuario puede ser supervisado por otro usuario (nutricionista/entrenador)
+  usuarioSupervisor Usuario? @relation("UsuarioSupervisor", fields: [id_supervisor], references: [id_usuario])
+  supervisor Usuario? @relation("UsuarioSupervisor")
+  id_supervisor Int? @unique
+
+  //un usuario supervisor (nutricionista/entrenador) puede supervisar varios planes
+  planesSupervisados Supervision_Plan[]
+
+  //un usuario puede tener uno o más métodos de autenticación
+  autenticacion Autenticacion[]
+  
+}
+
+model Autenticacion {
+
+  id_autenticacion Int @unique @default(autoincrement())
+  proveedor Int
+  id_externo String
+  fecha_creacion DateTime
+
+  //un método de autenticación pertenece a un solo usuario
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  id_usuario Int
+
+}
+
+model Rol {
+
+  id_rol Int @unique @default(autoincrement())
+  descripcion String
+
+  //un rol puede ser compartido entre varios usuarios
+  usuario Usuario[]
+
+}
+
+model Sugerencia {
+
+  id_sugerencia Int @unique @default(autoincrement())
+  fecha DateTime
+  comentario String?
+
+  //una sugerencia pertence a un solo usuario
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  id_usuario Int
+
+}
+
+model Perfil {
+
+  id_perfil Int @unique @default(autoincrement())
+  genero Int 
+  fechaNacimiento DateTime
+  altura Float
+  peso Float
+
+  //un perfil pertenence a un solo usuario
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  id_usuario Int @unique
+
+  //un perfil está asociado a varias preferencias alimentarias y puede estar asociado a varias afecciones
+  pref_alim Perfil_PrefAlim[]
+  afeccion Perfil_Afeccion[]
+
+  //un perfil pertenece a alguna ciudad
+  ciudad Ciudad @relation(fields: [id_ciudad], references: [id_ciudad])
+  id_ciudad Int
+
+}
+
+model PrefAlim{
+
+  id_pref_alim Int @unique @default(autoincrement())
+  descripcion String
+  perfil Perfil_PrefAlim[]
+
+}
+
+model Afeccion{
+
+  id_afeccion Int @unique @default(autoincrement())
+  descripcion String
+  perfil Perfil_Afeccion[]
+
+}
+
+model Ciudad {
+
+  id_ciudad Int @unique @default(autoincrement())
+  nombre String
+  region Region @relation(fields: [id_region], references: [id_region])
+  id_region Int
+  perfiles Perfil[]
+
+}
+
+model Region {
+
+  id_region Int @unique @default(autoincrement())
+  nombre String
+  ciudades Ciudad[]
+  pais Pais @relation(fields: [id_pais], references: [id_pais])
+  id_pais Int
+
+}
+
+model Pais {
+
+  id_pais Int @unique @default(autoincrement())
+  nombre String
+  regiones Region[]
+
+}
+
+model Perfil_PrefAlim{
+
+  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+  id_perfil Int
+  prefalim PrefAlim @relation(fields: [id_pref_alim], references: [id_pref_alim])
+  id_pref_alim Int
+
+  @@id([id_perfil, id_pref_alim])
+
+}
+
+model Perfil_Afeccion{
+
+  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
+  id_perfil Int
+  afeccion Afeccion @relation(fields: [id_afeccion], references: [id_afeccion])
+  id_afeccion Int
+
+  @@id([id_perfil, id_afeccion])
+
+}
+
+ model Plan {
+
+  //datos básicos de un plan
+  id_plan Int @id @default(autoincrement())
+  fecha DateTime
+  cant_comida Int
+  peso_inicial Float
+  peso_final Float
+  calificacion Float
+  comentario String?
+  estado Int
+
+  //un plan pertenece a un solo usuario
+  usuario Usuario @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
+  id_usuario Int
+
+  //un plan tiene un solo objetivo
+  objetivo Objetivo @relation(fields: [id_objetivo], references: [id_objetivo])
+  id_objetivo Int
+
+  //un plan tiene varios ejercicios
+  ejercicios Plan_Ejercicio[]
+
+  //un plan puede ser supervisado por varios usuarios (nutricionista/entrenador)
+  usuariosSupervisores Supervision_Plan[]
+
+  //un plan se compone de varios ingredientes y suplementos
+  ingredientes Plan_Ingrediente[]
+  suplementos Plan_Suplemento[]
+
+ }
+
+ model Supervision_Plan {
+
+  supervisor Usuario @relation(fields: [id_supervisor], references: [id_usuario])
+  id_supervisor Int
+
+  planSupervisado Plan @relation(fields: [id_plan], references: [id_plan])
+  id_plan Int
+
+  @@id([id_supervisor, id_plan])
+
+ }
+
+ model Objetivo {
+
+  id_objetivo Int @id @default(autoincrement())
+  descripcion String
+
+  //un objetivo puede ser compartido por varios planes
+  plan Plan[]
+
+ }
+
+ model Ejercicio {
+
+  id_ejercicio Int @id @default(autoincrement())
+  descripcion String
+  duracion Int
+  peso Float?
+
+  //un ejercicio pertenece a un tipo específico de ejercicios
+  tipo_ejercicio TipoEjercicio @relation(fields: [id_tipo_ejercicio], references: [id_tipo_ejercicio])
+  id_tipo_ejercicio Int
+
+  //un ejercicio puede ser compartido por varios planes
+  planes Plan_Ejercicio[]
+
+ }
+
+model TipoEjercicio {
+
+  id_tipo_ejercicio Int @id @default(autoincrement())
+  descripcion String
+
+  //un tipo de ejercicio puede ser compartido por varios ejercicios
+  ejercicios Ejercicio[]
+
+}
+
+model Plan_Ejercicio {
+
+  ejercicio Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
+  id_ejercicio Int 
+  plan Plan @relation(fields: [id_plan], references: [id_plan])
+  id_plan Int
+
+  @@id([id_ejercicio, id_plan])
+
+}
+
+model Ingrediente {
+
+  id_ingrediente Int @unique @default(autoincrement())
+  descripcion String
+
+  planes Plan_Ingrediente[]
+  micronutrientes Ingrediente_Micronutriente[]
+
+}
+
+model Plan_Ingrediente {
+
+  ingrediente Ingrediente @relation(fields: [id_ingrediente], references: [id_ingrediente])
+  id_ingrediente Int
+
+  plan Plan @relation(fields: [id_plan], references: [id_plan])
+  id_plan Int 
+
+  @@id([id_ingrediente, id_plan])
+
+  //comida: desayuno (1), media-mañana (2), almuerzo (3), merienda (4) y cena (5)
+  comida Int
+
+  medida Float
+  unidad_medida UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
+  id_unidad_medida Int
+
+  //macronutrientes
+  grasa Float
+  proteinas Float
+  carbohidratos Float
+
+}
+
+model Plan_Suplemento {
+
+  suplemento Suplemento @relation(fields: [id_suplemento], references: [id_suplemento])
+  id_suplemento Int
+
+  plan Plan @relation(fields: [id_plan], references: [id_plan])
+  id_plan Int
+
+  @@id([id_suplemento, id_plan])
+
+  medida Float
+  unidad_medida UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
+  id_unidad_medida Int
+
+  //macronutrientes
+  grasa Float
+  proteinas Float
+  carbohidratos Float
+
+
+}
+
+model Suplemento {
+
+  id_suplemento Int @unique @default(autoincrement())
+  descripcion String
+
+  planes Plan_Suplemento[]
+  micronutrientes Suplemento_Micronutriente[]
+
+}
+
+model UnidadMedida {
+
+  id_unidad_medida Int @unique @default(autoincrement())
+  descripcion String
+  abreviatura String
+
+  plan_ingrediente Plan_Ingrediente[]
+  plan_suplemento Plan_Suplemento[]
+
+}
+
+model Micronutriente {
+
+  id_micronutriente Int @unique @default(autoincrement())
+  descripcion String
+  ingredientes Ingrediente_Micronutriente[]
+  suplementos Suplemento_Micronutriente[]
+
+}
+
+model Ingrediente_Micronutriente {
+
+  ingrediente Ingrediente @relation(fields: [id_ingrediente], references: [id_ingrediente])
+  id_ingrediente Int
+
+  micronutriente Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  id_micronutriente Int
+
+  @@id([id_ingrediente, id_micronutriente])
+
+}
+
+model Suplemento_Micronutriente {
+
+  suplemento Suplemento @relation(fields: [id_suplemento], references: [id_suplemento])
+  id_suplemento Int
+
+  micronutriente Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  id_micronutriente Int
+
+  @@id([id_suplemento, id_micronutriente])
+
+}
