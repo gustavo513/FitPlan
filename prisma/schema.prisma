@@ -27,7 +27,7 @@ model Usuario {
   id_usuario Int @id @default(autoincrement())
   nombre_usuario String
   contrasenia String
-  fecha_creacion DateTime
+  fecha_creacion DateTime @default(now())
 
   //un usuario pertenece a una sola persona
   persona Persona @relation(fields: [id_persona], references: [id_persona])
@@ -64,7 +64,7 @@ model Autenticacion {
   id_autenticacion Int @unique @default(autoincrement())
   proveedor Int
   id_externo String
-  fecha_creacion DateTime
+  fecha_creacion DateTime @default(now())
 
   //un método de autenticación pertenece a un solo usuario
   usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
@@ -85,7 +85,7 @@ model Rol {
 model Sugerencia {
 
   id_sugerencia Int @unique @default(autoincrement())
-  fecha DateTime
+  fecha DateTime @default(now())
   comentario String?
 
   //una sugerencia pertence a un solo usuario
@@ -186,7 +186,7 @@ model Perfil_Afeccion{
 
   //datos básicos de un plan
   id_plan Int @id @default(autoincrement())
-  fecha DateTime
+  fecha DateTime @default(now())
   cant_comida Int
   peso_inicial Float
   peso_final Float
