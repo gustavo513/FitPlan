@@ -35,7 +35,7 @@ model Usuario {
 
   //un usuario tiene un solo rol
   rol Rol @relation(fields: [id_rol], references: [id_rol])
-  id_rol Int
+  id_rol Int @default(1)
 
   //un usuario tiene un solo perfil
   perfil Perfil?
@@ -77,7 +77,7 @@ model Rol {
   id_rol Int @unique @default(autoincrement())
   descripcion String
 
-  //un rol puede ser compartido entre varios usuarios
+  //un rol puede ser compartido entre varios usuarios. Estándar (1), Supervisor (2). El valor predeterminado es 1.
   usuario Usuario[]
 
 }
