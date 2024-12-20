@@ -31,7 +31,7 @@ model Usuario {
 
   //un usuario pertenece a una sola persona
   persona Persona? @relation(fields: [id_persona], references: [id_persona])
-  id_persona Int @unique 
+  id_persona Int? @unique 
 
   //un usuario tiene un solo rol
   rol Rol @relation(fields: [id_rol], references: [id_rol])
@@ -112,7 +112,7 @@ model Perfil {
 
   //un perfil pertenece a alguna ciudad
   ciudad Ciudad? @relation(fields: [id_ciudad], references: [id_ciudad])
-  id_ciudad Int
+  id_ciudad Int?
 
 }
 

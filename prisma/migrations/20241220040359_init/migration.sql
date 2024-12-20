@@ -12,9 +12,9 @@ CREATE TABLE "Usuario" (
     "id_usuario" SERIAL NOT NULL,
     "nombre_usuario" TEXT NOT NULL,
     "contrasenia" TEXT NOT NULL,
-    "fecha_creacion" TIMESTAMP(3) NOT NULL,
-    "id_persona" INTEGER NOT NULL,
-    "id_rol" INTEGER NOT NULL,
+    "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "id_persona" INTEGER,
+    "id_rol" INTEGER NOT NULL DEFAULT 1,
     "id_supervisor" INTEGER,
 
     CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id_usuario")
@@ -25,7 +25,7 @@ CREATE TABLE "Autenticacion" (
     "id_autenticacion" SERIAL NOT NULL,
     "proveedor" INTEGER NOT NULL,
     "id_externo" TEXT NOT NULL,
-    "fecha_creacion" TIMESTAMP(3) NOT NULL,
+    "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "id_usuario" INTEGER NOT NULL
 );
 
@@ -38,7 +38,7 @@ CREATE TABLE "Rol" (
 -- CreateTable
 CREATE TABLE "Sugerencia" (
     "id_sugerencia" SERIAL NOT NULL,
-    "fecha" TIMESTAMP(3) NOT NULL,
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "comentario" TEXT,
     "id_usuario" INTEGER NOT NULL
 );
@@ -51,7 +51,7 @@ CREATE TABLE "Perfil" (
     "altura" DOUBLE PRECISION NOT NULL,
     "peso" DOUBLE PRECISION NOT NULL,
     "id_usuario" INTEGER NOT NULL,
-    "id_ciudad" INTEGER NOT NULL
+    "id_ciudad" INTEGER
 );
 
 -- CreateTable
@@ -105,7 +105,7 @@ CREATE TABLE "Perfil_Afeccion" (
 -- CreateTable
 CREATE TABLE "Plan" (
     "id_plan" SERIAL NOT NULL,
-    "fecha" TIMESTAMP(3) NOT NULL,
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "cant_comida" INTEGER NOT NULL,
     "peso_inicial" DOUBLE PRECISION NOT NULL,
     "peso_final" DOUBLE PRECISION NOT NULL,
@@ -278,7 +278,7 @@ CREATE UNIQUE INDEX "UnidadMedida_id_unidad_medida_key" ON "UnidadMedida"("id_un
 CREATE UNIQUE INDEX "Micronutriente_id_micronutriente_key" ON "Micronutriente"("id_micronutriente");
 
 -- AddForeignKey
-ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_persona_fkey" FOREIGN KEY ("id_persona") REFERENCES "Persona"("id_persona") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_persona_fkey" FOREIGN KEY ("id_persona") REFERENCES "Persona"("id_persona") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_rol_fkey" FOREIGN KEY ("id_rol") REFERENCES "Rol"("id_rol") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -296,7 +296,7 @@ ALTER TABLE "Sugerencia" ADD CONSTRAINT "Sugerencia_id_usuario_fkey" FOREIGN KEY
 ALTER TABLE "Perfil" ADD CONSTRAINT "Perfil_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Perfil" ADD CONSTRAINT "Perfil_id_ciudad_fkey" FOREIGN KEY ("id_ciudad") REFERENCES "Ciudad"("id_ciudad") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Perfil" ADD CONSTRAINT "Perfil_id_ciudad_fkey" FOREIGN KEY ("id_ciudad") REFERENCES "Ciudad"("id_ciudad") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Ciudad" ADD CONSTRAINT "Ciudad_id_region_fkey" FOREIGN KEY ("id_region") REFERENCES "Region"("id_region") ON DELETE RESTRICT ON UPDATE CASCADE;
