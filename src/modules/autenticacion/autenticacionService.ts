@@ -11,7 +11,8 @@ export async function registro(nombre_usuario: string, contrasenia: string){
     const usuario = await prisma.usuario.create({
         data: {
             nombre_usuario,
-            contrasenia: hashedPassword
+            contrasenia: hashedPassword,
+            id_persona: 1
         }
     });
 
