@@ -30,8 +30,8 @@ model Usuario {
   fecha_creacion DateTime @default(now())
 
   //un usuario pertenece a una sola persona
-  persona Persona @relation(fields: [id_persona], references: [id_persona])
-  id_persona Int @unique 
+  persona Persona? @relation(fields: [id_persona], references: [id_persona])
+  id_persona Int? @unique 
 
   //un usuario tiene un solo rol
   rol Rol @relation(fields: [id_rol], references: [id_rol])
@@ -111,8 +111,8 @@ model Perfil {
   afeccion Perfil_Afeccion[]
 
   //un perfil pertenece a alguna ciudad
-  ciudad Ciudad @relation(fields: [id_ciudad], references: [id_ciudad])
-  id_ciudad Int
+  ciudad Ciudad? @relation(fields: [id_ciudad], references: [id_ciudad])
+  id_ciudad Int?
 
 }
 
