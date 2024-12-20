@@ -13,7 +13,7 @@ export const autenticacion = (
     }
 
     try{
-        const decoded = jwt.verify(token, "_P#2f4L2I0@t6N");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string); //decodifica el token utilizando la clave
 
         if(typeof decoded !== "string" && "id" in decoded){
             res.locals.user = (decoded as JwtPayload).id;
