@@ -26,7 +26,7 @@ model Usuario {
 
   id_usuario Int @id @default(autoincrement())
   nombre_usuario String @unique
-  contrasenia String
+  contrasenia String?
   fecha_creacion DateTime @default(now())
 
   //un usuario pertenece a una sola persona

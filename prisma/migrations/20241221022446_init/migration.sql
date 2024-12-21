@@ -11,7 +11,7 @@ CREATE TABLE "Persona" (
 CREATE TABLE "Usuario" (
     "id_usuario" SERIAL NOT NULL,
     "nombre_usuario" TEXT NOT NULL,
-    "contrasenia" TEXT NOT NULL,
+    "contrasenia" TEXT,
     "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "id_persona" INTEGER,
     "id_rol" INTEGER NOT NULL DEFAULT 1,

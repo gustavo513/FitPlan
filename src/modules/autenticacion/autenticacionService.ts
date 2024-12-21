@@ -26,7 +26,7 @@ export async function loginUsuario(nombre_usuario: string, contrasenia: string){
         }
     });
 
-    if(!usuario || !await bcrypt.compare(contrasenia, usuario.contrasenia)){    //verifica si la contraseña ingresada genera el mismo hash que la contraseña almacenada
+    if(!usuario || !usuario.contrasenia || !await bcrypt.compare(contrasenia, usuario.contrasenia)){    //verifica si la contraseña ingresada genera el mismo hash que la contraseña almacenada
         throw new Error('Nombre de usuario o contraseña incorrectos');
     }
 
