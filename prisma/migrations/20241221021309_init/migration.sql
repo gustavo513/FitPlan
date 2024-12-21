@@ -21,9 +21,9 @@ CREATE TABLE "Usuario" (
 );
 
 -- CreateTable
-CREATE TABLE "Autenticacion" (
+CREATE TABLE "MetodoAut" (
     "id_autenticacion" SERIAL NOT NULL,
-    "proveedor" INTEGER NOT NULL,
+    "id_proveedor" INTEGER NOT NULL,
     "id_externo" TEXT NOT NULL,
     "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "id_usuario" INTEGER NOT NULL
@@ -239,7 +239,7 @@ CREATE UNIQUE INDEX "Usuario_id_persona_key" ON "Usuario"("id_persona");
 CREATE UNIQUE INDEX "Usuario_id_supervisor_key" ON "Usuario"("id_supervisor");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Autenticacion_id_autenticacion_key" ON "Autenticacion"("id_autenticacion");
+CREATE UNIQUE INDEX "MetodoAut_id_autenticacion_key" ON "MetodoAut"("id_autenticacion");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Rol_id_rol_key" ON "Rol"("id_rol");
@@ -290,7 +290,7 @@ ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_rol_fkey" FOREIGN KEY ("id_rol"
 ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_supervisor_fkey" FOREIGN KEY ("id_supervisor") REFERENCES "Usuario"("id_usuario") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Autenticacion" ADD CONSTRAINT "Autenticacion_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "MetodoAut" ADD CONSTRAINT "MetodoAut_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Sugerencia" ADD CONSTRAINT "Sugerencia_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
