@@ -1,7 +1,9 @@
 import {Request, Response} from "express";
 import {registroUsuario, loginUsuario} from "./autenticacionService";
 
-export async function registro(req: Request, res: Response){
+import {RegistroSchemaBody, LoginSchemaBody} from "./autenticacionSchema";
+
+export async function registro(req: Request<{}, {}, RegistroSchemaBody>, res: Response){
     
     const {nombre_usuario, contrasenia} = req.body;
 
@@ -15,7 +17,7 @@ export async function registro(req: Request, res: Response){
     }
 };
 
-export async function login(req: Request, res: Response){
+export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response){
 
     const {nombre_usuario, contrasenia} = req.body;
 

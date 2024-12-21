@@ -12,6 +12,6 @@ export const validate = (schema: AnyZodObject) =>
         return next();
     }
     catch(e: any){
-        return res.status(400).send(e.errors);
+        res.status(400).send(e.errors);
     }
 };
