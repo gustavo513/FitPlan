@@ -55,14 +55,14 @@ model Usuario {
   planesSupervisados Supervision_Plan[]
 
   //un usuario puede tener uno o más métodos de autenticación
-  autenticacion Autenticacion[]
+  autenticacion MetodoAut[]
   
 }
 
-model Autenticacion {
+model MetodoAut {
 
   id_autenticacion Int @unique @default(autoincrement())
-  proveedor Int
+  id_proveedor Int
   id_externo String
   fecha_creacion DateTime @default(now())
 
