@@ -10,7 +10,8 @@ CREATE TABLE "Persona" (
 -- CreateTable
 CREATE TABLE "Usuario" (
     "id_usuario" SERIAL NOT NULL,
-    "nombre_usuario" TEXT NOT NULL,
+    "email" TEXT,
+    "nombre_usuario" TEXT,
     "contrasenia" TEXT,
     "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "id_persona" INTEGER,
@@ -240,6 +241,9 @@ CREATE UNIQUE INDEX "Usuario_id_supervisor_key" ON "Usuario"("id_supervisor");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MetodoAut_id_autenticacion_key" ON "MetodoAut"("id_autenticacion");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MetodoAut_id_externo_key" ON "MetodoAut"("id_externo");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Rol_id_rol_key" ON "Rol"("id_rol");

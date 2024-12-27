@@ -25,7 +25,8 @@ model Persona {
 model Usuario {
 
   id_usuario Int @id @default(autoincrement())
-  nombre_usuario String @unique
+  email String?
+  nombre_usuario String? @unique
   contrasenia String?
   fecha_creacion DateTime @default(now())
 
@@ -63,7 +64,7 @@ model MetodoAut {
 
   id_autenticacion Int @unique @default(autoincrement())
   id_proveedor Int
-  id_externo String
+  id_externo String @unique
   fecha_creacion DateTime @default(now())
 
   //un método de autenticación pertenece a un solo usuario
