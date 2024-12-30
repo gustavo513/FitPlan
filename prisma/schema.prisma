@@ -13,15 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Persona {
-
-  id_persona Int @id @default(autoincrement())
-  nombre String
-  apellido String
-  usuario Usuario?
-
-}
-
 model Usuario {
 
   id_usuario Int @id @default(autoincrement())
@@ -29,10 +20,7 @@ model Usuario {
   nombre_usuario String? @unique
   contrasenia String?
   fecha_creacion DateTime @default(now())
-
-  //un usuario pertenece a una sola persona
-  persona Persona? @relation(fields: [id_persona], references: [id_persona])
-  id_persona Int? @unique 
+  estado Int @default(1)
 
   //un usuario tiene un solo rol
   rol Rol @relation(fields: [id_rol], references: [id_rol])
@@ -62,7 +50,6 @@ model Usuario {
 
 model MetodoAut {
 
-  id_autenticacion Int @unique @default(autoincrement())
   id_proveedor Int
   id_externo String @unique
   fecha_creacion DateTime @default(now())
@@ -70,6 +57,8 @@ model MetodoAut {
   //un método de autenticación pertenece a un solo usuario
   usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
   id_usuario Int
+
+  @@id([id_proveedor, id_externo])
 
 }
 
@@ -98,6 +87,8 @@ model Sugerencia {
 model Perfil {
 
   id_perfil Int @unique @default(autoincrement())
+  nombre String
+  apellido String
   genero Int 
   fechaNacimiento DateTime
   altura Float

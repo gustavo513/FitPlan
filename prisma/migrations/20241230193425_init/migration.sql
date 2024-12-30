@@ -1,20 +1,11 @@
 -- CreateTable
-CREATE TABLE "Persona" (
-    "id_persona" SERIAL NOT NULL,
-    "nombre" TEXT NOT NULL,
-    "apellido" TEXT NOT NULL,
-
-    CONSTRAINT "Persona_pkey" PRIMARY KEY ("id_persona")
-);
-
--- CreateTable
 CREATE TABLE "Usuario" (
     "id_usuario" SERIAL NOT NULL,
     "email" TEXT,
     "nombre_usuario" TEXT,
     "contrasenia" TEXT,
     "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "id_persona" INTEGER,
+    "estado" INTEGER NOT NULL DEFAULT 1,
     "id_rol" INTEGER NOT NULL DEFAULT 1,
     "id_supervisor" INTEGER,
 
@@ -23,11 +14,12 @@ CREATE TABLE "Usuario" (
 
 -- CreateTable
 CREATE TABLE "MetodoAut" (
-    "id_autenticacion" SERIAL NOT NULL,
     "id_proveedor" INTEGER NOT NULL,
     "id_externo" TEXT NOT NULL,
     "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "id_usuario" INTEGER NOT NULL
+    "id_usuario" INTEGER NOT NULL,
+
+    CONSTRAINT "MetodoAut_pkey" PRIMARY KEY ("id_proveedor","id_externo")
 );
 
 -- CreateTable
@@ -47,6 +39,8 @@ CREATE TABLE "Sugerencia" (
 -- CreateTable
 CREATE TABLE "Perfil" (
     "id_perfil" SERIAL NOT NULL,
+    "nombre" TEXT NOT NULL,
+    "apellido" TEXT NOT NULL,
     "genero" INTEGER NOT NULL,
     "fechaNacimiento" TIMESTAMP(3) NOT NULL,
     "altura" DOUBLE PRECISION NOT NULL,
@@ -234,13 +228,7 @@ CREATE TABLE "Suplemento_Micronutriente" (
 CREATE UNIQUE INDEX "Usuario_nombre_usuario_key" ON "Usuario"("nombre_usuario");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Usuario_id_persona_key" ON "Usuario"("id_persona");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Usuario_id_supervisor_key" ON "Usuario"("id_supervisor");
-
--- CreateIndex
-CREATE UNIQUE INDEX "MetodoAut_id_autenticacion_key" ON "MetodoAut"("id_autenticacion");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MetodoAut_id_externo_key" ON "MetodoAut"("id_externo");
@@ -283,9 +271,6 @@ CREATE UNIQUE INDEX "UnidadMedida_id_unidad_medida_key" ON "UnidadMedida"("id_un
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Micronutriente_id_micronutriente_key" ON "Micronutriente"("id_micronutriente");
-
--- AddForeignKey
-ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_persona_fkey" FOREIGN KEY ("id_persona") REFERENCES "Persona"("id_persona") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_rol_fkey" FOREIGN KEY ("id_rol") REFERENCES "Rol"("id_rol") ON DELETE RESTRICT ON UPDATE CASCADE;
