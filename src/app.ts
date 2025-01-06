@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import autenticacionRouter from "./modules/autenticacion/autenticacionRoutes";
 import "./modules/autenticacion/passportGoogle";
 import autenticacionGoogleRouter from "./modules/autenticacion/autenticacionGoogleRoutes";
+import perfilRouter from "./modules/perfil/perfilRoutes";
 
 //carga las variables del archivo .env
 dotenv.config();
@@ -21,6 +22,7 @@ app.get("/healthcheck", (req, res) => {
 
 app.use('/autenticacion', autenticacionRouter);
 app.use('/autenticacion', autenticacionGoogleRouter);
+app.use('/perfil', perfilRouter);
 
 app.listen(3000, "0.0.0.0", () => {
     console.log("El servidor se está ejecutando en el puerto 3000");
