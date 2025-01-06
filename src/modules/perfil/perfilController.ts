@@ -7,7 +7,7 @@ import {
 
 export async function obtener(req: Request, res: Response){
     
-    const idUsuario = res.locals.user;
+    const idUsuario = parseInt(req.params.id);
 
     try{
         const perfil = await obtenerPerfil(idUsuario);

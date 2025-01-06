@@ -11,7 +11,7 @@ import {
 
 const router = Router();
 
-router.get('/', [autenticacion, autorizacion(['Estándar'])], obtener);
+router.get('/:id', [autenticacion, autorizacion(['Estándar'])], obtener);
 router.post('/', [autenticacion, autorizacion(['Estándar'])], agregar);
 router.put('/:id', [autenticacion, autorizacion(['Estándar'])], actualizar);
 
