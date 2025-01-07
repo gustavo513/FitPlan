@@ -6,7 +6,7 @@ git clone https://github.com/gustavo513/FitPlan
 
 npm install
 
--- Establecer las variables de entorno en el archivo .env
+-- Establecer las variables de entorno en el archivo /FitPlan/.env
 
 DATABASE_URL=" "
 
