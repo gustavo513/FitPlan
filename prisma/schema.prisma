@@ -37,8 +37,8 @@ model Usuario {
 
   //un usuario puede ser supervisado por otro usuario (nutricionista/entrenador)
   usuarioSupervisor Usuario? @relation("UsuarioSupervisor", fields: [id_supervisor], references: [id_usuario])
-  supervisor Usuario? @relation("UsuarioSupervisor")
-  id_supervisor Int? @unique
+  supervisados Usuario[] @relation("UsuarioSupervisor")
+  id_supervisor Int?
 
   //un usuario supervisor (nutricionista/entrenador) puede supervisar varios planes
   planesSupervisados Supervision_Plan[]

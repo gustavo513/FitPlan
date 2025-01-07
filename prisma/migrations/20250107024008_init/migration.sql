@@ -228,9 +228,6 @@ CREATE TABLE "Suplemento_Micronutriente" (
 CREATE UNIQUE INDEX "Usuario_nombre_usuario_key" ON "Usuario"("nombre_usuario");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Usuario_id_supervisor_key" ON "Usuario"("id_supervisor");
-
--- CreateIndex
 CREATE UNIQUE INDEX "MetodoAut_id_externo_key" ON "MetodoAut"("id_externo");
 
 -- CreateIndex
