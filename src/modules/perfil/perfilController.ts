@@ -1,16 +1,31 @@
 import {Request, Response} from 'express';
 import { 
+    obtenerMiPerfil,
     obtenerPerfil,
     agregarPerfil,
     actualizarPerfil
 } from './perfilService';
 
-export async function obtener(req: Request, res: Response){
-    
-    const idUsuario = parseInt(req.params.id);
+export async function miPerfil(req: Request, res: Response) {
+    try {
+        const idUsuario = res.locals.user;   
 
+        const usuario = await obtenerMiPerfil(idUsuario);
+
+        return res.status(200).send(usuario);
+    }
+    catch (error: any) {
+        return res.status(404).send({ message: 'Registro no encontrado', error: error.message });
+    }
+}
+
+export async function obtener(req: Request, res: Response){
     try{
-        const perfil = await obtenerPerfil(idUsuario);
+        const idUsuario = parseInt(req.params.id);
+
+        const idSupervisor = res.locals.user;
+
+        const perfil = await obtenerPerfil(idUsuario, idSupervisor);
 
         res.status(200).send(perfil);
     }
@@ -38,7 +53,7 @@ export async function actualizar(req: Request, res: Response){
     const idUsuario = res.locals.user;
 
     try{
-        const perfil = await actualizarPerfil(req.body, idUsuario, req.params.id);
+        const perfil = await actualizarPerfil(req.body, idUsuario);
 
         return res.status(200).send(perfil);
     }
