@@ -4,6 +4,7 @@ import {autenticacion} from '../middleware/autenticacion';
 import {autorizacion} from '../middleware/autorizacion';
 
 import {
+    miPerfil,
     obtener,
     agregar,
     actualizar
@@ -11,8 +12,9 @@ import {
 
 const router = Router();
 
-router.get('/:id', [autenticacion, autorizacion(['Estándar'])], obtener);
-router.post('/', [autenticacion, autorizacion(['Estándar'])], agregar);
-router.put('/:id', [autenticacion, autorizacion(['Estándar'])], actualizar);
+router.get('/', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], miPerfil);
+router.get('/obtener/:id', [autenticacion, autorizacion(['Supervisor'])], obtener);
+router.post('/agregar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], agregar);
+router.put('/actualizar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizar);
 
 export default router;

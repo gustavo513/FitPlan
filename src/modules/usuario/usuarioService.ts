@@ -3,6 +3,25 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+export async function obtenerMiUsuario(idUsuario: number){
+    const usuario = await prisma.usuario.findUnique({
+        where: {
+            id_usuario: idUsuario
+        },
+        select: {
+            id_usuario: true,
+            email: true,
+            nombre_usuario: true,
+            fecha_creacion: true,
+            estado: true,
+            id_rol: true,
+            id_supervisor: true
+        }        
+    });
+
+    return usuario;
+}
+
 export async function obtenerUsuario(idUsuario: number){
     const usuario = await prisma.usuario.findUnique({
         where: {

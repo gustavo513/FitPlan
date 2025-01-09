@@ -27,6 +27,6 @@ export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response
         res.status(200).send({token});
     }
     catch(error: any){
-        res.status(400).send({message: 'Inicio de sesión fallido'});
+        res.status(400).send({ message: 'Inicio de sesión fallido', error: error.message});
     }
 }
