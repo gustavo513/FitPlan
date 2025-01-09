@@ -18,6 +18,8 @@ export async function obtenerPerfil(
     idUsuario: number,
     idSupervisor: number
 ) {
+
+    //Los supervisores pueden ver solamente los perfiles de los usuarios que supervisan, por lo tanto, se verifica previamente si el perfil a visualizar pertenece a un usuario supervisado por el usuario autenticado actualmente. El perfil a visualizar debe pertenecer a un usuario "activo"
     const usuario = await prisma.usuario.findUnique({
         where: {
             id_usuario: idUsuario,

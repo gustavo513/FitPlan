@@ -1,12 +1,26 @@
 import {Request, Response} from 'express';
 
 import {
+    obtenerMiUsuario,
     obtenerUsuario,
     actualizarUsuario,
     cambiarContrasenia,
     eliminarUsuario,
     listarUsuariosSupervisados
 } from '../usuario/usuarioService';
+
+export async function miUsuario(req: Request, res: Response) {
+    try {
+        const idUsuario = res.locals.user;
+
+        const usuario = await obtenerMiUsuario(idUsuario);
+
+        return res.status(200).send(usuario);
+    }
+    catch (error: any) {
+        return res.status(404).send({ message: 'Registro no encontrado', error: error.message});
+    }
+}
 
 export async function obtener(req: Request, res: Response){
     try{
