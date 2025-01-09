@@ -14,7 +14,7 @@ export async function registroUsuario(nombre_usuario: string, contrasenia: strin
         }
     });
 
-    if (!usuario_verificado) {
+    if (usuario_verificado) {
         throw new Error('El nombre de usuario ya está en uso');
     }
     else {
