@@ -1,3 +1,5 @@
+-- Versión de Node.js: 22.6.0
+
 -- Clonar el repositorio
 
 git clone https://github.com/gustavo513/FitPlan
@@ -24,3 +26,7 @@ npx prisma migrate dev --name init
 
 npm run dev
 
+-- Ejecutar los siguiente comandos en PostgreSQL:
+
+INSERT INTO public."Rol"(descripcion) VALUES ('Estándar');
+INSERT INTO public."Rol"(descripcion) VALUES ('Supervisor');
