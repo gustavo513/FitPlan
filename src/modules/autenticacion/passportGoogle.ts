@@ -27,6 +27,8 @@ passport.use(
                         data: {
                             //nombre_usuario: profile.displayName,
                             email: profile.emails?.[0].value!,
+                            confirm_email: 1,
+                            estado: 1
                         }
                     });
     

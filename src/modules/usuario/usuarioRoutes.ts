@@ -5,20 +5,26 @@ import {autorizacion} from "../middleware/autorizacion";
 
 import {
     miUsuario,
-    obtener,
+    obtenerPorId,
+    obtenerPorNombreUsuario,
     actualizar,
     actualizarContrasenia,
     eliminar,
-    listarUsSup
+    listarSupervisores,
+    listarSupervisados,
+    eliminarSupervision
 } from '../usuario/usuarioController';
 
 const router = Router();
 
 router.get('/', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], miUsuario);
-router.get('/obtener/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtener);
+router.get('/obtener-por-id/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtenerPorId);
+router.get('/obtener-por-nombre-usuario/:nombre_usuario', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtenerPorNombreUsuario);
 router.put('/actualizar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizar);
 router.patch('/cambiar-contrasenia', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizarContrasenia);
 router.patch('/eliminar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], eliminar);
-router.get('/usuarios-supervisados', [autenticacion, autorizacion(['Supervisor'])], listarUsSup);
+router.get('/supervisores', [autenticacion, autorizacion(['Estándar'])], listarSupervisores);
+router.get('/usuarios-supervisados', [autenticacion, autorizacion(['Supervisor'])], listarSupervisados);
+router.delete('/eliminar-supervision/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], eliminarSupervision);
 
 export default router;

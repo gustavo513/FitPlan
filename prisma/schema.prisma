@@ -16,11 +16,16 @@ datasource db {
 model Usuario {
 
   id_usuario Int @id @default(autoincrement())
-  email String?
+  email String? @unique
   nombre_usuario String? @unique
   contrasenia String?
+  confirm_email Int @default(0)
+  token String?
+  token_expiracion DateTime?
   fecha_creacion DateTime @default(now())
-  estado Int @default(1)
+  fecha_ult_sesion DateTime @default(now())
+  fecha_eliminacion DateTime?
+  estado Int @default(0)
 
   //un usuario tiene un solo rol
   rol Rol @relation(fields: [id_rol], references: [id_rol])
@@ -32,13 +37,15 @@ model Usuario {
   //un usuario puede enviar varias sugerencias con el tiempo
   sugerencia Sugerencia[]
 
+  //un usuario puede supervisar a varios usuarios y un usuario supervisado por varios supervisores
+  supervisados Usuario_Supervisor[] @relation("Estandar")
+  supervisores Usuario_Supervisor[] @relation("Supervisor")
+
+  //un usuario puede enviar solicitudes de supervisión a varios supervisores
+  solicitudes SolicitudSupervision[]
+
   //un usuario puede generar varios planes de dieta y ejercicios
   planes Plan[] @relation("PlanUsuario")
-
-  //un usuario puede ser supervisado por otro usuario (nutricionista/entrenador)
-  usuarioSupervisor Usuario? @relation("UsuarioSupervisor", fields: [id_supervisor], references: [id_usuario])
-  supervisados Usuario[] @relation("UsuarioSupervisor")
-  id_supervisor Int?
 
   //un usuario supervisor (nutricionista/entrenador) puede supervisar varios planes
   planesSupervisados Supervision_Plan[]
@@ -46,6 +53,32 @@ model Usuario {
   //un usuario puede tener uno o más métodos de autenticación
   autenticacion MetodoAut[]
   
+}
+
+model Usuario_Supervisor{
+
+  supervisados Usuario @relation("Estandar", fields: [id_estandar], references: [id_usuario])
+  id_estandar Int
+
+  supervisores Usuario @relation("Supervisor", fields: [id_supervisor], references: [id_usuario])
+  id_supervisor Int
+
+  fecha_conexion DateTime @default(now())
+
+  @@id([id_estandar, id_supervisor])
+
+}
+
+model SolicitudSupervision{
+
+  id_solicitud Int @unique @default(autoincrement())
+  id_supervisor Int
+  fecha DateTime @default(now())
+  estado Int
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
+  id_usuario Int
+
 }
 
 model MetodoAut {
@@ -87,8 +120,8 @@ model Sugerencia {
 model Perfil {
 
   id_perfil Int @unique @default(autoincrement())
-  nombre String
-  apellido String
+  nombre String?
+  apellido String?
   genero Int 
   fechaNacimiento DateTime
   altura Float
@@ -182,8 +215,10 @@ model Perfil_Afeccion{
   cant_comida Int
   peso_inicial Float
   peso_final Float
+  estado_peso_final Int
   calificacion Float
   comentario String?
+  estado_calif Int
   estado Int
 
   //un plan pertenece a un solo usuario
@@ -213,6 +248,9 @@ model Perfil_Afeccion{
 
   planSupervisado Plan @relation(fields: [id_plan], references: [id_plan])
   id_plan Int
+
+  comentario String?
+  fecha_comentario DateTime?
 
   @@id([id_supervisor, id_plan])
 

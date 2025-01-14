@@ -16,6 +16,8 @@ export const autorizacion = (roles: string[]) => {
             }
         });
 
+        res.locals.role = usuario?.rol.descripcion;
+
         if(!usuario || !roles.includes(usuario.rol.descripcion)){
             return res.status(403).json({message: 'No tiene permisos suficientes'});
         }

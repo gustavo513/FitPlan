@@ -4,12 +4,34 @@ CREATE TABLE "Usuario" (
     "email" TEXT,
     "nombre_usuario" TEXT,
     "contrasenia" TEXT,
+    "confirm_email" INTEGER NOT NULL DEFAULT 0,
+    "token" TEXT,
+    "token_expiracion" TIMESTAMP(3),
     "fecha_creacion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "estado" INTEGER NOT NULL DEFAULT 1,
+    "fecha_ult_sesion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fecha_eliminacion" TIMESTAMP(3),
+    "estado" INTEGER NOT NULL DEFAULT 0,
     "id_rol" INTEGER NOT NULL DEFAULT 1,
-    "id_supervisor" INTEGER,
 
     CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id_usuario")
+);
+
+-- CreateTable
+CREATE TABLE "Usuario_Supervisor" (
+    "id_estandar" INTEGER NOT NULL,
+    "id_supervisor" INTEGER NOT NULL,
+    "fecha_conexion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Usuario_Supervisor_pkey" PRIMARY KEY ("id_estandar","id_supervisor")
+);
+
+-- CreateTable
+CREATE TABLE "SolicitudSupervision" (
+    "id_solicitud" SERIAL NOT NULL,
+    "id_supervisor" INTEGER NOT NULL,
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "estado" INTEGER NOT NULL,
+    "id_usuario" INTEGER NOT NULL
 );
 
 -- CreateTable
@@ -39,8 +61,8 @@ CREATE TABLE "Sugerencia" (
 -- CreateTable
 CREATE TABLE "Perfil" (
     "id_perfil" SERIAL NOT NULL,
-    "nombre" TEXT NOT NULL,
-    "apellido" TEXT NOT NULL,
+    "nombre" TEXT,
+    "apellido" TEXT,
     "genero" INTEGER NOT NULL,
     "fechaNacimiento" TIMESTAMP(3) NOT NULL,
     "altura" DOUBLE PRECISION NOT NULL,
@@ -104,8 +126,10 @@ CREATE TABLE "Plan" (
     "cant_comida" INTEGER NOT NULL,
     "peso_inicial" DOUBLE PRECISION NOT NULL,
     "peso_final" DOUBLE PRECISION NOT NULL,
+    "estado_peso_final" INTEGER NOT NULL,
     "calificacion" DOUBLE PRECISION NOT NULL,
     "comentario" TEXT,
+    "estado_calif" INTEGER NOT NULL,
     "estado" INTEGER NOT NULL,
     "id_usuario" INTEGER NOT NULL,
     "id_objetivo" INTEGER NOT NULL,
@@ -117,6 +141,8 @@ CREATE TABLE "Plan" (
 CREATE TABLE "Supervision_Plan" (
     "id_supervisor" INTEGER NOT NULL,
     "id_plan" INTEGER NOT NULL,
+    "comentario" TEXT,
+    "fecha_comentario" TIMESTAMP(3),
 
     CONSTRAINT "Supervision_Plan_pkey" PRIMARY KEY ("id_supervisor","id_plan")
 );
@@ -225,7 +251,13 @@ CREATE TABLE "Suplemento_Micronutriente" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Usuario_nombre_usuario_key" ON "Usuario"("nombre_usuario");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SolicitudSupervision_id_solicitud_key" ON "SolicitudSupervision"("id_solicitud");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MetodoAut_id_externo_key" ON "MetodoAut"("id_externo");
@@ -273,7 +305,13 @@ CREATE UNIQUE INDEX "Micronutriente_id_micronutriente_key" ON "Micronutriente"("
 ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_rol_fkey" FOREIGN KEY ("id_rol") REFERENCES "Rol"("id_rol") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_supervisor_fkey" FOREIGN KEY ("id_supervisor") REFERENCES "Usuario"("id_usuario") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Usuario_Supervisor" ADD CONSTRAINT "Usuario_Supervisor_id_estandar_fkey" FOREIGN KEY ("id_estandar") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Usuario_Supervisor" ADD CONSTRAINT "Usuario_Supervisor_id_supervisor_fkey" FOREIGN KEY ("id_supervisor") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SolicitudSupervision" ADD CONSTRAINT "SolicitudSupervision_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MetodoAut" ADD CONSTRAINT "MetodoAut_id_usuario_fkey" FOREIGN KEY ("id_usuario") REFERENCES "Usuario"("id_usuario") ON DELETE RESTRICT ON UPDATE CASCADE;

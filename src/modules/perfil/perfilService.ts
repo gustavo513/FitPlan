@@ -15,34 +15,78 @@ export async function obtenerMiPerfil(idUsuario: number) {
 }
 
 export async function obtenerPerfil(
-    idUsuario: number,
-    idSupervisor: number
+    idPerfil: number,
+    idUsuarioActual: number,
+    rol: string
 ) {
 
-    //Los supervisores pueden ver solamente los perfiles de los usuarios que supervisan, por lo tanto, se verifica previamente si el perfil a visualizar pertenece a un usuario supervisado por el usuario autenticado actualmente. El perfil a visualizar debe pertenecer a un usuario "activo"
-    const usuario = await prisma.usuario.findUnique({
+    let idUsuarioEstandar;
+    let idSupervisor;
+
+    const idUsuario = await prisma.perfil.findUnique({
         where: {
-            id_usuario: idUsuario,
+            id_perfil: idPerfil
+        },
+        select: {
+            id_usuario: true
+        }
+    });
+
+    if (rol == 'Estándar') {
+        idUsuarioEstandar = idUsuarioActual;
+        idSupervisor = idUsuario?.id_usuario;
+    }
+    else {
+        idUsuarioEstandar = idUsuario?.id_usuario;
+        idSupervisor = idUsuarioActual;
+    }
+
+    //Los supervisores pueden ver solamente los perfiles de los usuarios que supervisan, por lo tanto, se verifica previamente si el perfil a visualizar pertenece a un usuario supervisado por el usuario autenticado actualmente. El perfil a visualizar debe pertenecer a un usuario "activo"
+    const usuario = await prisma.usuario_Supervisor.findFirst({
+        where: {
+            id_estandar: idUsuarioEstandar,
             id_supervisor: idSupervisor,
-            estado: 1
+            supervisados: {
+                estado: 1
+            }
         }
     });
 
     if (!usuario) {
         throw new Error('Error al procesar solicitud');
     }
+    else {
 
-    const perfil = await prisma.perfil.findUnique({
-        where: {
-            id_usuario: idUsuario
-        },
-        include: {
-            pref_alim: true,
-            afeccion: true
+        let perfil;
+
+        if (rol == 'Estándar') {
+            perfil = await prisma.perfil.findUnique({
+                where: {
+                    id_perfil: idPerfil
+                },
+                select: {
+                    id_perfil: true,
+                    nombre: true,
+                    apellido: true,
+                    genero: true,
+                    id_ciudad: true,
+                    id_usuario: true
+                }
+            });
         }
-    });
-
-    return perfil;
+        else {
+            perfil = await prisma.perfil.findUnique({
+                where: {
+                    id_perfil: idPerfil
+                },
+                include: {
+                    pref_alim: true,
+                    afeccion: true
+                }
+            });
+        }
+        return perfil;
+    }
 };
 
 export async function agregarPerfil(
@@ -63,6 +107,8 @@ export async function agregarPerfil(
             id_usuario: parseInt(idUsuario)
         }
     });
+
+    return perfil;
 }
 
 export async function actualizarPerfil(
@@ -85,4 +131,6 @@ export async function actualizarPerfil(
             ...data
         }
     });
+
+    return perfil;
 }

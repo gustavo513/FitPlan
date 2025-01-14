@@ -13,7 +13,7 @@ import {
 const router = Router();
 
 router.get('/', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], miPerfil);
-router.get('/obtener/:id', [autenticacion, autorizacion(['Supervisor'])], obtener);
+router.get('/obtener/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtener);
 router.post('/agregar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], agregar);
 router.put('/actualizar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizar);
 

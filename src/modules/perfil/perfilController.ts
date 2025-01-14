@@ -21,11 +21,11 @@ export async function miPerfil(req: Request, res: Response) {
 
 export async function obtener(req: Request, res: Response){
     try{
-        const idUsuario = parseInt(req.params.id);
+        const idPerfil = parseInt(req.params.id);
 
-        const idSupervisor = res.locals.user;
+        const idUsuario = res.locals.user;
 
-        const perfil = await obtenerPerfil(idUsuario, idSupervisor);
+        const perfil = await obtenerPerfil(idPerfil, idUsuario, res.locals.role);
 
         res.status(200).send(perfil);
     }
