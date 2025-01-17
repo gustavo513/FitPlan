@@ -11,6 +11,7 @@ export async function obtenerMiUsuario(idUsuario: number){
         select: {
             id_usuario: true,
             email: true,
+            confirm_email: true,
             nombre_usuario: true,
             fecha_creacion: true,
             estado: true,
@@ -95,21 +96,27 @@ export async function cambiarContrasenia(contrasenia: string, contraseniaNueva: 
     const usuario = await prisma.usuario.findUnique({
         where: {
             id_usuario: idUsuario,
-            contrasenia: await bcrypt.hash(contrasenia, 10),
             estado: 1
         }
-    })
-    
-    const contrasenia_hashed = await bcrypt.hash(contrasenia, 10);
-    
-    return await prisma.usuario.update({
-        where: {
-            id_usuario: idUsuario
-        },
-        data: {
-            contrasenia: contrasenia_hashed
-        }
     });
+
+    console.log(usuario?.id_usuario);
+    
+    if (await bcrypt.compare(contrasenia, usuario?.contrasenia!)) {
+        const contrasenia_hashed = await bcrypt.hash(contraseniaNueva, 10);
+    
+        return await prisma.usuario.update({
+            where: {
+                id_usuario: idUsuario
+            },
+            data: {
+                contrasenia: contrasenia_hashed
+            }
+        });
+    }
+    else {
+        throw new Error('Contraseña incorrecta');
+    }
 };
 
 export async function eliminarUsuario(idUsuario: number, rol: string) {
@@ -159,6 +166,7 @@ export async function listarUsuariosSupervisores(idUsuario: number) {
     const supervisores = await prisma.usuario_Supervisor.findMany({
         where: {
             id_estandar: idUsuario,
+            estado: 1,
             supervisores: {
                 estado: 1
             }
@@ -187,6 +195,7 @@ export async function listarUsuariosSupervisados(idUsuarioSupervisor: number){
     const usuarios = await prisma.usuario_Supervisor.findMany({
         where: {
             id_supervisor: idUsuarioSupervisor,
+            estado: 1,
             supervisados: {
                 estado: 1
             }
@@ -225,10 +234,13 @@ export async function eliminarUsuarioSupervisor(idUsuarioActual: number, id: num
         idUsuarioSupervisor = idUsuarioActual;
     }
 
-    await prisma.usuario_Supervisor.deleteMany({
+    await prisma.usuario_Supervisor.updateMany({
         where: {
             id_estandar: idUsuarioEstandar,
             id_supervisor: idUsuarioSupervisor
+        },
+        data: {
+            estado: 0
         }
     });
 }

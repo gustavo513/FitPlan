@@ -13,6 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SolicitudEstado{
+  P //pendiente
+  A //aceptado
+  R //rechazado
+  C //cancelado
+}
+
 model Usuario {
 
   id_usuario Int @id @default(autoincrement())
@@ -65,6 +72,8 @@ model Usuario_Supervisor{
 
   fecha_conexion DateTime @default(now())
 
+  estado Int @default(1)
+
   @@id([id_estandar, id_supervisor])
 
 }
@@ -74,7 +83,7 @@ model SolicitudSupervision{
   id_solicitud Int @unique @default(autoincrement())
   id_supervisor Int
   fecha DateTime @default(now())
-  estado Int
+  estado SolicitudEstado @default(P)
 
   usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
   id_usuario Int

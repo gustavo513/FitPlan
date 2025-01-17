@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "SolicitudEstado" AS ENUM ('P', 'A', 'R', 'C');
+
 -- CreateTable
 CREATE TABLE "Usuario" (
     "id_usuario" SERIAL NOT NULL,
@@ -21,6 +24,7 @@ CREATE TABLE "Usuario_Supervisor" (
     "id_estandar" INTEGER NOT NULL,
     "id_supervisor" INTEGER NOT NULL,
     "fecha_conexion" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "estado" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Usuario_Supervisor_pkey" PRIMARY KEY ("id_estandar","id_supervisor")
 );
@@ -30,7 +34,7 @@ CREATE TABLE "SolicitudSupervision" (
     "id_solicitud" SERIAL NOT NULL,
     "id_supervisor" INTEGER NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "estado" INTEGER NOT NULL,
+    "estado" "SolicitudEstado" NOT NULL DEFAULT 'P',
     "id_usuario" INTEGER NOT NULL
 );
 

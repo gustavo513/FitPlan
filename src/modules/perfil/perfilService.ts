@@ -8,6 +8,21 @@ export async function obtenerMiPerfil(idUsuario: number) {
             id_usuario: idUsuario
         },
         include: {
+            ciudad: {
+                select: {
+                    nombre: true,
+                    region: {
+                        select: {
+                            nombre: true,
+                            pais: {
+                                select: {
+                                    nombre: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             pref_alim: true,
             afeccion: true,
         }
@@ -46,6 +61,7 @@ export async function obtenerPerfil(
         where: {
             id_estandar: idUsuarioEstandar,
             id_supervisor: idSupervisor,
+            estado: 1,
             supervisados: {
                 estado: 1
             }
@@ -69,7 +85,21 @@ export async function obtenerPerfil(
                     nombre: true,
                     apellido: true,
                     genero: true,
-                    id_ciudad: true,
+                    ciudad: {
+                        select: {
+                            nombre: true,
+                            region: {
+                                select: {
+                                    nombre: true,
+                                    pais: {
+                                        select: {
+                                            nombre: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     id_usuario: true
                 }
             });
@@ -80,6 +110,21 @@ export async function obtenerPerfil(
                     id_perfil: idPerfil
                 },
                 include: {
+                    ciudad: {
+                        select: {
+                            nombre: true,
+                            region: {
+                                select: {
+                                    nombre: true,
+                                    pais: {
+                                        select: {
+                                            nombre: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     pref_alim: true,
                     afeccion: true
                 }
@@ -119,7 +164,7 @@ export async function actualizarPerfil(
         fechaNacimiento: string,
         altura: number,
         peso: number,
-        idCiudad: number
+        idCiudad?: number
     },
     idUsuario: number
 ){

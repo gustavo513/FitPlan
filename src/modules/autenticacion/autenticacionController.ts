@@ -2,6 +2,8 @@ import {Request, Response} from "express";
 import {
     registroUsuario,
     loginUsuario,
+    solicitudValidarCorreo,
+    solicitudValidarNombreUsuario,
     solicitudVerificarCorreo,
     solicitudConfirmarCorreo,
     solicitudContraseniaOlvidada,
@@ -35,6 +37,38 @@ export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response
     }
     catch(error: any){
         res.status(400).send({ message: 'Inicio de sesión fallido', error: error.message});
+    }
+}
+
+export async function validarCorreo(req: Request, res: Response) {
+    try {
+
+        const email = req.body.email;
+
+        const validacion = await solicitudValidarCorreo(email);
+
+        if (validacion == 0) {
+            return res.status(200).send({ message: 'El correo está disponible para usarse' });
+        }
+    }
+    catch (error: any) {
+        return res.status(404).send({ message: 'Error al validar correo', error: error.message });
+    }
+}
+
+export async function validarNombreUsuario(req: Request, res: Response) {
+    try{
+
+        const nombre_usuario = req.body.nombre_usuario;
+
+        const validacion = await solicitudValidarNombreUsuario(nombre_usuario);
+
+        if (validacion == 0) {
+            return res.status(200).send({ message: 'El nombre de usuario está disponible para usarse' });
+        }
+    }
+    catch (error: any) {
+        return res.status(404).send({ message: 'Error al validar nombre de usuario', error: error.message });
     }
 }
 

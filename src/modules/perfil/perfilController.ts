@@ -6,6 +6,8 @@ import {
     actualizarPerfil
 } from './perfilService';
 
+import { PerfilSchemaBody } from './perfilSchema';
+
 export async function miPerfil(req: Request, res: Response) {
     try {
         const idUsuario = res.locals.user;   
@@ -34,7 +36,7 @@ export async function obtener(req: Request, res: Response){
     }
 }
 
-export async function agregar(req: Request, res: Response){
+export async function agregar(req: Request<{}, {}, PerfilSchemaBody>, res: Response){
 
     const idUsuario = res.locals.user;
 
@@ -48,11 +50,12 @@ export async function agregar(req: Request, res: Response){
     }
 };
 
-export async function actualizar(req: Request, res: Response){
-
-    const idUsuario = res.locals.user;
+export async function actualizar(req: Request<{}, {}, PerfilSchemaBody>, res: Response){
 
     try{
+        
+        const idUsuario = res.locals.user;
+
         const perfil = await actualizarPerfil(req.body, idUsuario);
 
         return res.status(200).send(perfil);

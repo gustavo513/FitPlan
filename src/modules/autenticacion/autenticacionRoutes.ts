@@ -2,6 +2,8 @@ import {Router} from "express";
 import {
     registro,
     login,
+    validarCorreo,
+    validarNombreUsuario,
     verificarCorreo,
     confirmarCorreo,
     contraseniaOlvidada,
@@ -20,8 +22,10 @@ const router = Router();
 
 router.post("/registro", validate(registroSchema), registro);
 router.post("/login", validate(loginSchema), login);
+router.get("/validar-correo", validarCorreo);
+router.get("/validar-nombre-usuario", validarNombreUsuario);
 router.post("/verificar-correo", [autenticacion, autorizacion(['Estándar', 'Supervisor'])], verificarCorreo);
-router.post("/confirmar-correo/:token", confirmarCorreo);
+router.get("/confirmar-correo/:token", confirmarCorreo);
 router.post("/contrasenia-olvidada", contraseniaOlvidada);
 router.post("/restablecer-contrasenia/:token", restablecerContrasenia);
 

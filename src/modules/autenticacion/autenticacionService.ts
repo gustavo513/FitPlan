@@ -53,6 +53,34 @@ export async function loginUsuario(nombre_usuario: string, contrasenia: string){
     return generarToken(usuario.id_usuario);
 }
 
+export async function solicitudValidarCorreo(email: string) {
+    
+    const usuario = await prisma.usuario.findUnique({
+        where: {
+            email: email
+        }
+    });
+
+    if (usuario) {
+        throw new Error('El correo no está disponible para su uso');
+    }
+    return 0;
+}
+
+export async function solicitudValidarNombreUsuario(nombre_usuario: string) {
+    
+    const usuario = await prisma.usuario.findUnique({
+        where: {
+            nombre_usuario: nombre_usuario
+        }
+    });
+
+    if (usuario) {
+        throw new Error('El nombre de usuario no está disponible para su uso')
+    }
+    return 0;
+}
+
 export async function solicitudVerificarCorreo(idUsuario: number) {
     const usuario = await prisma.usuario.findUnique({
         where: {
@@ -98,6 +126,8 @@ export async function solicitudConfirmarCorreo(token: string) {
                 },
                 data: {
                     confirm_email: 1,
+                    token: null,
+                    token_expiracion: null,
                     estado: 1
                 }
             });
@@ -147,6 +177,7 @@ export async function solicitudContraseniaOlvidada(email: string) {
 }
 
 export async function solicitudRestablecerContrasenia(token: string, contrasenia: string) {
+    
     const usuario = await prisma.usuario.findFirst({
         where: {
             token: token
@@ -164,6 +195,8 @@ export async function solicitudRestablecerContrasenia(token: string, contrasenia
                     id_usuario: usuario.id_usuario
                 },
                 data: {
+                    token: null,
+                    token_expiracion: null,
                     contrasenia: hashedPassword
                 }
             });

@@ -25,6 +25,6 @@ router.patch('/cambiar-contrasenia', [autenticacion, autorizacion(['Estándar', 
 router.patch('/eliminar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], eliminar);
 router.get('/supervisores', [autenticacion, autorizacion(['Estándar'])], listarSupervisores);
 router.get('/usuarios-supervisados', [autenticacion, autorizacion(['Supervisor'])], listarSupervisados);
-router.delete('/eliminar-supervision/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], eliminarSupervision);
+router.patch('/eliminar-supervision/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], eliminarSupervision);
 
 export default router;
