@@ -35,7 +35,9 @@ CREATE TABLE "SolicitudSupervision" (
     "id_supervisor" INTEGER NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "estado" "SolicitudEstado" NOT NULL DEFAULT 'P',
-    "id_usuario" INTEGER NOT NULL
+    "id_usuario" INTEGER NOT NULL,
+
+    CONSTRAINT "SolicitudSupervision_pkey" PRIMARY KEY ("id_solicitud")
 );
 
 -- CreateTable
@@ -51,7 +53,9 @@ CREATE TABLE "MetodoAut" (
 -- CreateTable
 CREATE TABLE "Rol" (
     "id_rol" SERIAL NOT NULL,
-    "descripcion" TEXT NOT NULL
+    "descripcion" TEXT NOT NULL,
+
+    CONSTRAINT "Rol_pkey" PRIMARY KEY ("id_rol")
 );
 
 -- CreateTable
@@ -59,7 +63,9 @@ CREATE TABLE "Sugerencia" (
     "id_sugerencia" SERIAL NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "comentario" TEXT,
-    "id_usuario" INTEGER NOT NULL
+    "id_usuario" INTEGER NOT NULL,
+
+    CONSTRAINT "Sugerencia_pkey" PRIMARY KEY ("id_sugerencia")
 );
 
 -- CreateTable
@@ -72,55 +78,76 @@ CREATE TABLE "Perfil" (
     "altura" DOUBLE PRECISION NOT NULL,
     "peso" DOUBLE PRECISION NOT NULL,
     "id_usuario" INTEGER NOT NULL,
-    "id_ciudad" INTEGER
+    "id_ciudad" INTEGER,
+
+    CONSTRAINT "Perfil_pkey" PRIMARY KEY ("id_perfil")
 );
 
 -- CreateTable
 CREATE TABLE "PrefAlim" (
     "id_pref_alim" SERIAL NOT NULL,
-    "descripcion" TEXT NOT NULL
+    "descripcion" TEXT NOT NULL,
+
+    CONSTRAINT "PrefAlim_pkey" PRIMARY KEY ("id_pref_alim")
 );
 
 -- CreateTable
 CREATE TABLE "Afeccion" (
     "id_afeccion" SERIAL NOT NULL,
-    "descripcion" TEXT NOT NULL
+    "descripcion" TEXT NOT NULL,
+    "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Afeccion_pkey" PRIMARY KEY ("id_afeccion")
 );
 
 -- CreateTable
 CREATE TABLE "Ciudad" (
     "id_ciudad" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
-    "id_region" INTEGER NOT NULL
+    "id_region" INTEGER NOT NULL,
+
+    CONSTRAINT "Ciudad_pkey" PRIMARY KEY ("id_ciudad")
 );
 
 -- CreateTable
 CREATE TABLE "Region" (
     "id_region" SERIAL NOT NULL,
     "nombre" TEXT NOT NULL,
-    "id_pais" INTEGER NOT NULL
+    "id_pais" INTEGER NOT NULL,
+
+    CONSTRAINT "Region_pkey" PRIMARY KEY ("id_region")
 );
 
 -- CreateTable
 CREATE TABLE "Pais" (
     "id_pais" SERIAL NOT NULL,
-    "nombre" TEXT NOT NULL
+    "nombre" TEXT NOT NULL,
+
+    CONSTRAINT "Pais_pkey" PRIMARY KEY ("id_pais")
 );
 
 -- CreateTable
 CREATE TABLE "Perfil_PrefAlim" (
+    "id_perf_prefalim" SERIAL NOT NULL,
     "id_perfil" INTEGER NOT NULL,
     "id_pref_alim" INTEGER NOT NULL,
+    "fecha_inicio" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fecha_fin" TIMESTAMP(3),
+    "estado" INTEGER NOT NULL DEFAULT 1,
 
-    CONSTRAINT "Perfil_PrefAlim_pkey" PRIMARY KEY ("id_perfil","id_pref_alim")
+    CONSTRAINT "Perfil_PrefAlim_pkey" PRIMARY KEY ("id_perf_prefalim")
 );
 
 -- CreateTable
 CREATE TABLE "Perfil_Afeccion" (
+    "id_perf_afec" SERIAL NOT NULL,
     "id_perfil" INTEGER NOT NULL,
     "id_afeccion" INTEGER NOT NULL,
+    "fecha_inicio" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "fecha_fin" TIMESTAMP(3),
+    "estado" INTEGER NOT NULL DEFAULT 1,
 
-    CONSTRAINT "Perfil_Afeccion_pkey" PRIMARY KEY ("id_perfil","id_afeccion")
+    CONSTRAINT "Perfil_Afeccion_pkey" PRIMARY KEY ("id_perf_afec")
 );
 
 -- CreateTable
@@ -189,7 +216,9 @@ CREATE TABLE "Plan_Ejercicio" (
 -- CreateTable
 CREATE TABLE "Ingrediente" (
     "id_ingrediente" SERIAL NOT NULL,
-    "descripcion" TEXT NOT NULL
+    "descripcion" TEXT NOT NULL,
+
+    CONSTRAINT "Ingrediente_pkey" PRIMARY KEY ("id_ingrediente")
 );
 
 -- CreateTable
@@ -222,20 +251,26 @@ CREATE TABLE "Plan_Suplemento" (
 -- CreateTable
 CREATE TABLE "Suplemento" (
     "id_suplemento" SERIAL NOT NULL,
-    "descripcion" TEXT NOT NULL
+    "descripcion" TEXT NOT NULL,
+
+    CONSTRAINT "Suplemento_pkey" PRIMARY KEY ("id_suplemento")
 );
 
 -- CreateTable
 CREATE TABLE "UnidadMedida" (
     "id_unidad_medida" SERIAL NOT NULL,
     "descripcion" TEXT NOT NULL,
-    "abreviatura" TEXT NOT NULL
+    "abreviatura" TEXT NOT NULL,
+
+    CONSTRAINT "UnidadMedida_pkey" PRIMARY KEY ("id_unidad_medida")
 );
 
 -- CreateTable
 CREATE TABLE "Micronutriente" (
     "id_micronutriente" SERIAL NOT NULL,
-    "descripcion" TEXT NOT NULL
+    "descripcion" TEXT NOT NULL,
+
+    CONSTRAINT "Micronutriente_pkey" PRIMARY KEY ("id_micronutriente")
 );
 
 -- CreateTable
@@ -261,49 +296,10 @@ CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 CREATE UNIQUE INDEX "Usuario_nombre_usuario_key" ON "Usuario"("nombre_usuario");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "SolicitudSupervision_id_solicitud_key" ON "SolicitudSupervision"("id_solicitud");
-
--- CreateIndex
 CREATE UNIQUE INDEX "MetodoAut_id_externo_key" ON "MetodoAut"("id_externo");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Rol_id_rol_key" ON "Rol"("id_rol");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Sugerencia_id_sugerencia_key" ON "Sugerencia"("id_sugerencia");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Perfil_id_perfil_key" ON "Perfil"("id_perfil");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Perfil_id_usuario_key" ON "Perfil"("id_usuario");
-
--- CreateIndex
-CREATE UNIQUE INDEX "PrefAlim_id_pref_alim_key" ON "PrefAlim"("id_pref_alim");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Afeccion_id_afeccion_key" ON "Afeccion"("id_afeccion");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Ciudad_id_ciudad_key" ON "Ciudad"("id_ciudad");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Region_id_region_key" ON "Region"("id_region");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Pais_id_pais_key" ON "Pais"("id_pais");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Ingrediente_id_ingrediente_key" ON "Ingrediente"("id_ingrediente");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Suplemento_id_suplemento_key" ON "Suplemento"("id_suplemento");
-
--- CreateIndex
-CREATE UNIQUE INDEX "UnidadMedida_id_unidad_medida_key" ON "UnidadMedida"("id_unidad_medida");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Micronutriente_id_micronutriente_key" ON "Micronutriente"("id_micronutriente");
 
 -- AddForeignKey
 ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_id_rol_fkey" FOREIGN KEY ("id_rol") REFERENCES "Rol"("id_rol") ON DELETE RESTRICT ON UPDATE CASCADE;

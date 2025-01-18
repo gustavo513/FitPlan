@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export async function obtenerMiPerfil(idUsuario: number) {
     return await prisma.perfil.findUnique({
         where: {
-            id_usuario: idUsuario
+            id_usuario: idUsuario,
         },
         include: {
             ciudad: {
@@ -24,7 +24,15 @@ export async function obtenerMiPerfil(idUsuario: number) {
                 }
             },
             pref_alim: true,
-            afeccion: true,
+            afeccion: {
+                select: {
+                    id_perf_afec: true,
+                    id_perfil: true,
+                    id_afeccion: true,
+                    estado: true,
+                    afeccion: true
+                }
+            }
         }
     });
 }

@@ -80,7 +80,7 @@ model Usuario_Supervisor{
 
 model SolicitudSupervision{
 
-  id_solicitud Int @unique @default(autoincrement())
+  id_solicitud Int @id @default(autoincrement())
   id_supervisor Int
   fecha DateTime @default(now())
   estado SolicitudEstado @default(P)
@@ -106,7 +106,7 @@ model MetodoAut {
 
 model Rol {
 
-  id_rol Int @unique @default(autoincrement())
+  id_rol Int @id @default(autoincrement())
   descripcion String
 
   //un rol puede ser compartido entre varios usuarios. Estándar (1), Supervisor (2). El valor predeterminado es 1.
@@ -116,7 +116,7 @@ model Rol {
 
 model Sugerencia {
 
-  id_sugerencia Int @unique @default(autoincrement())
+  id_sugerencia Int @id @default(autoincrement())
   fecha DateTime @default(now())
   comentario String?
 
@@ -128,7 +128,7 @@ model Sugerencia {
 
 model Perfil {
 
-  id_perfil Int @unique @default(autoincrement())
+  id_perfil Int @id @default(autoincrement())
   nombre String?
   apellido String?
   genero Int 
@@ -152,7 +152,7 @@ model Perfil {
 
 model PrefAlim{
 
-  id_pref_alim Int @unique @default(autoincrement())
+  id_pref_alim Int @id @default(autoincrement())
   descripcion String
   perfil Perfil_PrefAlim[]
 
@@ -160,15 +160,16 @@ model PrefAlim{
 
 model Afeccion{
 
-  id_afeccion Int @unique @default(autoincrement())
+  id_afeccion Int @id @default(autoincrement())
   descripcion String
   perfil Perfil_Afeccion[]
+  fecha DateTime @default(now())
 
 }
 
 model Ciudad {
 
-  id_ciudad Int @unique @default(autoincrement())
+  id_ciudad Int @id @default(autoincrement())
   nombre String
   region Region @relation(fields: [id_region], references: [id_region])
   id_region Int
@@ -178,7 +179,7 @@ model Ciudad {
 
 model Region {
 
-  id_region Int @unique @default(autoincrement())
+  id_region Int @id @default(autoincrement())
   nombre String
   ciudades Ciudad[]
   pais Pais @relation(fields: [id_pais], references: [id_pais])
@@ -188,7 +189,7 @@ model Region {
 
 model Pais {
 
-  id_pais Int @unique @default(autoincrement())
+  id_pais Int @id @default(autoincrement())
   nombre String
   regiones Region[]
 
@@ -196,23 +197,32 @@ model Pais {
 
 model Perfil_PrefAlim{
 
+  id_perf_prefalim Int @id @default(autoincrement())
+
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
   id_perfil Int
+
   prefalim PrefAlim @relation(fields: [id_pref_alim], references: [id_pref_alim])
   id_pref_alim Int
 
-  @@id([id_perfil, id_pref_alim])
+  fecha_inicio DateTime @default(now())
+  fecha_fin DateTime?
+  estado Int @default(1) //0: desvinculado; 1: vinculado
 
 }
 
 model Perfil_Afeccion{
+  id_perf_afec Int @id @default(autoincrement())
 
   perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
   id_perfil Int
+
   afeccion Afeccion @relation(fields: [id_afeccion], references: [id_afeccion])
   id_afeccion Int
 
-  @@id([id_perfil, id_afeccion])
+  fecha_inicio DateTime @default(now())
+  fecha_fin DateTime?
+  estado Int @default(1) //0: desvinculado; 1: vinculado
 
 }
 
@@ -314,7 +324,7 @@ model Plan_Ejercicio {
 
 model Ingrediente {
 
-  id_ingrediente Int @unique @default(autoincrement())
+  id_ingrediente Int @id @default(autoincrement())
   descripcion String
 
   planes Plan_Ingrediente[]
@@ -365,12 +375,11 @@ model Plan_Suplemento {
   proteinas Float
   carbohidratos Float
 
-
 }
 
 model Suplemento {
 
-  id_suplemento Int @unique @default(autoincrement())
+  id_suplemento Int @id @default(autoincrement())
   descripcion String
 
   planes Plan_Suplemento[]
@@ -380,7 +389,7 @@ model Suplemento {
 
 model UnidadMedida {
 
-  id_unidad_medida Int @unique @default(autoincrement())
+  id_unidad_medida Int @id @default(autoincrement())
   descripcion String
   abreviatura String
 
@@ -391,7 +400,7 @@ model UnidadMedida {
 
 model Micronutriente {
 
-  id_micronutriente Int @unique @default(autoincrement())
+  id_micronutriente Int @id @default(autoincrement())
   descripcion String
   ingredientes Ingrediente_Micronutriente[]
   suplementos Suplemento_Micronutriente[]

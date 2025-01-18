@@ -32,11 +32,11 @@ npm run dev
 
 -- Ejecutar los siguiente comandos en PostgreSQL:
 
-ROLES
+    -- ROLES
 INSERT INTO public."Rol"(descripcion) VALUES ('Estándar');
 INSERT INTO public."Rol"(descripcion) VALUES ('Supervisor');
 
-CIUDAD, REGIÓN Y PAÍS
+    -- CIUDAD, REGIÓN Y PAÍS
 INSERT INTO public."Pais"(nombre) VALUES ('Paraguay');
 INSERT INTO public."Region"(nombre, id_pais) VALUES ('Alto Paraná', 1);
 INSERT INTO public."Ciudad"(nombre, id_region) VALUES ('Ciudad del Este', 1);
