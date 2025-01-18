@@ -10,6 +10,9 @@ import perfilRouter from "./modules/perfil/perfilRoutes";
 import solicitudSupervisionRouter from './modules/supervision/supervisionRoutes';
 import sugerenciaRouter from './modules/sugerencia/sugerenciaRoutes';
 import afeccionRouter from './modules/afeccion/afeccionRoutes';
+import prefAlimRouter from './modules/prefAlim/prefAlimRoutes';
+import tipoEjercicioRouter from './modules/tipoEjercicio/tipoEjercicioRoutes';
+import objetivoRouter from './modules/objetivo/objetivoRoutes';
 
 //carga las variables del archivo .env
 dotenv.config();
@@ -31,6 +34,9 @@ app.use('/usuario', usuarioRouter);
 app.use('/solicitudes-supervision', solicitudSupervisionRouter);
 app.use('/sugerencias', sugerenciaRouter);
 app.use('/afecciones', afeccionRouter);
+app.use('/preferencias-alimentarias', prefAlimRouter);
+app.use('/tipos-ejercicios', tipoEjercicioRouter);
+app.use('/objetivos', objetivoRouter);
 
 app.listen(3000, "0.0.0.0", () => {
     console.log("El servidor se está ejecutando en el puerto 3000");

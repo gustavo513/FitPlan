@@ -83,4 +83,6 @@ export async function desvincularAfeccionPerfil(idAfeccion: number, idPerfil: nu
         }
     });
 
+    return afeccionPerfil;
+
 }

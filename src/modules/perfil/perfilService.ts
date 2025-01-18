@@ -23,12 +23,14 @@ export async function obtenerMiPerfil(idUsuario: number) {
                     }
                 }
             },
-            pref_alim: true,
+            pref_alim: {
+                select: {
+                    estado: true,
+                    prefalim: true
+                }
+            },
             afeccion: {
                 select: {
-                    id_perf_afec: true,
-                    id_perfil: true,
-                    id_afeccion: true,
                     estado: true,
                     afeccion: true
                 }
@@ -133,8 +135,18 @@ export async function obtenerPerfil(
                             }
                         }
                     },
-                    pref_alim: true,
-                    afeccion: true
+                    pref_alim: {
+                        select: {
+                            estado: true,
+                            prefalim: true
+                        }
+                    },
+                    afeccion: {
+                        select: {
+                            estado: true,
+                            afeccion: true
+                        }
+                    }
                 }
             });
         }

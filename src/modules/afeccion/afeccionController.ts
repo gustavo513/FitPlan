@@ -71,9 +71,9 @@ export async function desvincular(req: Request, res: Response){
         
         const idAfeccion = parseInt(req.params.idAfeccion);
 
-        await desvincularAfeccionPerfil(idAfeccion, idPerfil);
+        const afeccion = await desvincularAfeccionPerfil(idAfeccion, idPerfil);
 
-        return res.status(200).send('Se ha quitado exitosamente la afección');
+        return res.status(200).send(afeccion);
     }
     catch (error: any) {
         return res.status(400).send({ message: 'Error al intentar quitar afeccion', error: error.message });

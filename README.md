@@ -40,3 +40,19 @@ INSERT INTO public."Rol"(descripcion) VALUES ('Supervisor');
 INSERT INTO public."Pais"(nombre) VALUES ('Paraguay');
 INSERT INTO public."Region"(nombre, id_pais) VALUES ('Alto Paraná', 1);
 INSERT INTO public."Ciudad"(nombre, id_region) VALUES ('Ciudad del Este', 1);
+
+    -- PREFERENCIAS ALIMENTARIAS
+INSERT INTO public."PrefAlim"(descripcion) VALUES ('Omnívoro');
+INSERT INTO public."PrefAlim"(descripcion) VALUES ('Vegetariano');
+INSERT INTO public."PrefAlim"(descripcion) VALUES ('Vegano');
+
+    -- OBJETIVOS
+INSERT INTO public."Objetivo"(descripcion) VALUES ('Bajar de peso');
+INSERT INTO public."Objetivo"(descripcion) VALUES ('Mantener masa corporal');
+INSERT INTO public."Objetivo"(descripcion) VALUES ('Aumentar masa muscular');
+
+    -- TIPOS DE EJERCICIOS
+INSERT INTO public."TipoEjercicio"(descripcion) VALUES ('Cardio');
+INSERT INTO public."TipoEjercicio"(descripcion) VALUES ('Fuerza');
+
+

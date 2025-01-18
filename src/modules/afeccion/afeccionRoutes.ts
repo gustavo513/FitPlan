@@ -16,7 +16,7 @@ const routes = Router();
 routes.get('/listar/:cantReg', [autenticacion, autorizacion(['Estándar'])], obtener);
 routes.get('/obtener-por-descripcion', [autenticacion, autorizacion(['Estándar'])], obtenerPorDescripcion);
 routes.post('/agregar', [autenticacion, autorizacion(['Estándar'])], agregar);
-routes.post('/vincular-a-afeccion/:id', [autenticacion, autorizacion(['Estándar'])], vincular);
-routes.put('/desvincular-afeccion/:idPerfil/:idAfeccion', desvincular);
+routes.post('/vincular/:id', [autenticacion, autorizacion(['Estándar'])], vincular);
+routes.put('/desvincular/:idPerfil/:idAfeccion', desvincular);
 
 export default routes;
