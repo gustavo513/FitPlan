@@ -8,6 +8,7 @@ import autenticacionGoogleRouter from "./modules/autenticacion/autenticacionGoog
 import usuarioRouter from "./modules/usuario/usuarioRoutes";
 import perfilRouter from "./modules/perfil/perfilRoutes";
 import solicitudSupervisionRouter from './modules/supervision/supervisionRoutes';
+import sugerenciaRouter from './modules/sugerencia/sugerenciaRoutes';
 
 //carga las variables del archivo .env
 dotenv.config();
@@ -27,6 +28,7 @@ app.use('/autenticacion', autenticacionGoogleRouter);
 app.use('/perfil', perfilRouter);
 app.use('/usuario', usuarioRouter);
 app.use('/solicitudes-supervision', solicitudSupervisionRouter);
+app.use('/sugerencia', sugerenciaRouter);
 
 app.listen(3000, "0.0.0.0", () => {
     console.log("El servidor se está ejecutando en el puerto 3000");
