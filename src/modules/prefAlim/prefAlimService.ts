@@ -29,7 +29,7 @@ export async function vincularPrefAlim(idPrefAlim: number, idUsuario: number) {
 
 export async function desvincularPrefAlim(idPrefAlim: number, idPerfil: number) {
     
-    const prefAlim = await prisma.perfil_PrefAlim.updateMany({
+    return await prisma.perfil_PrefAlim.updateMany({
         where: {
             id_perf_prefalim: idPrefAlim,
             id_perfil: idPerfil,

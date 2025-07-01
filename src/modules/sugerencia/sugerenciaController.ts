@@ -9,7 +9,9 @@ import {
 export async function agregar(req: Request, res: Response) {
     try {
         
-        const { comentario } = req.body;
+        let { comentario } = req.body;
+
+        comentario = comentario.trim();
 
         const idUsuario = res.locals.user;
 
@@ -39,7 +41,9 @@ export async function actualizar(req: Request, res: Response) {
         
         const id = parseInt(req.params.id);
 
-        const { comentario } = req.body;
+        let { comentario } = req.body;
+
+        comentario = comentario.trim();
 
         const sugerencia = await actualizarSugerencia(comentario, id);
 

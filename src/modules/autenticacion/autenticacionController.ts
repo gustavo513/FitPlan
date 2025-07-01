@@ -6,18 +6,24 @@ import {
     solicitudValidarNombreUsuario,
     solicitudVerificarCorreo,
     solicitudConfirmarCorreo,
-    solicitudContraseniaOlvidada,
-    solicitudRestablecerContrasenia
+    solicitudContrasenaOlvidada,
+    solicitudRestablecerContrasena
 } from "./autenticacionService";
 
-import {RegistroSchemaBody, LoginSchemaBody} from "./autenticacionSchema";
+import {
+    RegistroSchemaBody, 
+    LoginSchemaBody, 
+    CorreoRequeridoSchemaBody,
+    ContrasenaRequeridaSchemaBody,
+    TokenRequeridoSchemaParams
+} from "./autenticacionSchema";
 
 export async function registro(req: Request<{}, {}, RegistroSchemaBody>, res: Response){
     
-    const {email, nombre_usuario, contrasenia} = req.body;
+    const {email, nombre_usuario, contrasena} = req.body;
 
     try{
-        const token = await registroUsuario(email, nombre_usuario, contrasenia);
+        const token = await registroUsuario(email, nombre_usuario, contrasena);
 
         res.status(200).send({token});
     }
@@ -28,10 +34,10 @@ export async function registro(req: Request<{}, {}, RegistroSchemaBody>, res: Re
 
 export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response){
 
-    const {nombre_usuario, contrasenia} = req.body;
+    const {nombre_usuario, contrasena} = req.body;
 
     try{
-        const token = await loginUsuario(nombre_usuario, contrasenia);
+        const token = await loginUsuario(nombre_usuario, contrasena);
 
         res.status(200).send({token});
     }
@@ -40,7 +46,7 @@ export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response
     }
 }
 
-export async function validarCorreo(req: Request, res: Response) {
+export async function validarCorreo(req: Request<{}, {}, CorreoRequeridoSchemaBody>, res: Response) {
     try {
 
         const email = req.body.email;
@@ -72,7 +78,7 @@ export async function validarNombreUsuario(req: Request, res: Response) {
     }
 }
 
-export async function verificarCorreo(req: Request, res: Response) {
+export async function verificarCorreo(req: Request<{}, {}, CorreoRequeridoSchemaBody>, res: Response) {
     try {
         const idUsuario = res.locals.user;
 
@@ -87,7 +93,7 @@ export async function verificarCorreo(req: Request, res: Response) {
 
 export async function confirmarCorreo(req: Request, res: Response) {
     try {
-        const token = req.body.token;
+        const token = req.params.token;
 
         await solicitudConfirmarCorreo(token);
 
@@ -98,11 +104,11 @@ export async function confirmarCorreo(req: Request, res: Response) {
     }
 }
 
-export async function contraseniaOlvidada(req: Request, res: Response) {
+export async function contrasenaOlvidada(req: Request<{}, {}, CorreoRequeridoSchemaBody>, res: Response) {
     try {
         const email = req.body.email;
 
-        await solicitudContraseniaOlvidada(email);
+        await solicitudContrasenaOlvidada(email);
 
         return res.status(200).send('Se ha enviado el enlace de restablecimiento de contraseña');
     }
@@ -111,13 +117,13 @@ export async function contraseniaOlvidada(req: Request, res: Response) {
     }
 }
 
-export async function restablecerContrasenia(req: Request, res: Response) {
+export async function restablecerContrasena(req: Request<TokenRequeridoSchemaParams, {}, ContrasenaRequeridaSchemaBody>, res: Response) {
     try {
-        const contrasenia = req.body.contrasenia;
+        const contrasenia = req.body.contrasena;
 
-        const token = req.params.token;
+        const token: string = req.params.token;
 
-        const r = await solicitudRestablecerContrasenia(token, contrasenia);
+        const r = await solicitudRestablecerContrasena(token, contrasenia);
 
         return res.status(200).send(r);
     }

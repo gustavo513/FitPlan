@@ -38,10 +38,16 @@ export async function obtener(req: Request, res: Response){
 
 export async function agregar(req: Request<{}, {}, PerfilSchemaBody>, res: Response){
 
-    const idUsuario = res.locals.user;
+    const id_usuario = res.locals.user;
+
+    let {nombre, apellido, genero, fechaNacimiento, altura, peso, id_ciudad} = req.body;
+
+    nombre = nombre.trim();
+
+    apellido = apellido.trim();
 
     try{
-        const perfil = await agregarPerfil(req.body, idUsuario);
+        const perfil = await agregarPerfil({nombre, apellido, genero, fechaNacimiento, altura, peso, id_ciudad}, id_usuario);
 
         return res.status(201).send(perfil);
     }
@@ -54,9 +60,15 @@ export async function actualizar(req: Request<{}, {}, PerfilSchemaBody>, res: Re
 
     try{
         
-        const idUsuario = res.locals.user;
+        const id_usuario = res.locals.user;
 
-        const perfil = await actualizarPerfil(req.body, idUsuario);
+        let {nombre, apellido, genero, fechaNacimiento, altura, peso, id_ciudad} = req.body;
+
+        nombre = nombre.trim();
+
+        apellido = apellido.trim();
+
+        const perfil = await actualizarPerfil({nombre, apellido, genero, fechaNacimiento, altura, peso, id_ciudad}, id_usuario);
 
         return res.status(200).send(perfil);
     }

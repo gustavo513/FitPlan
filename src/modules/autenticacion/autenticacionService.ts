@@ -119,7 +119,7 @@ export async function solicitudConfirmarCorreo(token: string) {
 
     if (usuario) {
         const fechaActual = new Date();
-        if (usuario?.token_expiracion! > fechaActual) {
+        if (usuario.token_expiracion && usuario.token_expiracion > fechaActual) {
             await prisma.usuario.update({
                 where: {
                     id_usuario: usuario.id_usuario
@@ -133,7 +133,7 @@ export async function solicitudConfirmarCorreo(token: string) {
             });
         }
         else {
-            throw new Error('Token no valido o expirado');
+            throw new Error('Token expirado');
         }
     }
     else {
@@ -141,7 +141,7 @@ export async function solicitudConfirmarCorreo(token: string) {
     }
 }
 
-export async function solicitudContraseniaOlvidada(email: string) {
+export async function solicitudContrasenaOlvidada(email: string) {
     
     const usuario = await prisma.usuario.findUnique({
         where: {
@@ -169,43 +169,46 @@ export async function solicitudContraseniaOlvidada(email: string) {
             }
         });
 
-        const URL = `http://localhost:3000/autenticacion/restablecer-contrasenia/${token}`;
+        const URL = `http://localhost:3000/autenticacion/restablecer-contrasena/${token}`;
 
         await enviarEmail(email, 'Restablecimiento de contraseña', `Has solicitado el restablecimiento de tu contraseña. Por favor, ingresa al enlace para restablecer tu contraseña: ${URL}`);
     }
 
 }
 
-export async function solicitudRestablecerContrasenia(token: string, contrasenia: string) {
-    
+export async function solicitudRestablecerContrasena(token: string, contrasena: string) {
     const usuario = await prisma.usuario.findFirst({
         where: {
             token: token
         }
     });
 
+    if (!usuario) {
+        return 'Token no válido.';
+    }
+
     const tiempoActual = new Date();
 
-    if (usuario) {
-        if (usuario?.token_expiracion! > tiempoActual) {
-            const hashedPassword = await bcrypt.hash(contrasenia, 10);
-
-            await prisma.usuario.update({
-                where: {
-                    id_usuario: usuario.id_usuario
-                },
-                data: {
-                    token: null,
-                    token_expiracion: null,
-                    contrasenia: hashedPassword
-                }
-            });
-        }
-        else {
-            throw new Error('Tiempo expirado. Intente otra vez.');
-        }
+    if (!usuario.token_expiracion || usuario.token_expiracion < tiempoActual) {
+        throw new Error('Token expirado. Intente otra vez.');
     }
+
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+
+    await prisma.usuario.update({
+        where: {
+            id_usuario: usuario.id_usuario
+        },
+        data: {
+            token: null,
+            token_expiracion: null,
+            contrasenia: hashedPassword
+        }
+    });
+
+    return 'Contraseña restablecida con éxito.';
 }
+
 
 function generarToken(userId: Number){
     return jwt.sign({id: userId}, process.env.JWT_SECRET_KEY as string, {expiresIn: '24h'}) //función que genera un token

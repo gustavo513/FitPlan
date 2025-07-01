@@ -1,11 +1,11 @@
-import {PrismaClient} from '@prisma/client';
+import {genero, PrismaClient} from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function obtenerMiPerfil(idUsuario: number) {
     return await prisma.perfil.findUnique({
         where: {
-            id_usuario: idUsuario,
+            id_usuario: idUsuario
         },
         include: {
             ciudad: {
@@ -158,18 +158,19 @@ export async function agregarPerfil(
     data: {
         nombre: string,
         apellido: string,
-        genero: number,
+        genero: string,
         fechaNacimiento: string,
         altura: number,
         peso: number,
-        idCiudad?: number
+        id_ciudad?: number | undefined
     },
-    idUsuario: string
+    id_usuario: string
 ){
     const perfil = await prisma.perfil.create({
         data: {
             ...data,
-            id_usuario: parseInt(idUsuario)
+            genero: data.genero as genero,
+            id_usuario: parseInt(id_usuario)
         }
     });
 
@@ -180,20 +181,21 @@ export async function actualizarPerfil(
     data: {
         nombre: string,
         apellido: string,
-        genero: number,
+        genero: string,
         fechaNacimiento: string,
         altura: number,
         peso: number,
-        idCiudad?: number
+        id_ciudad?: number | undefined
     },
-    idUsuario: number
+    id_usuario: number
 ){
     const perfil = await prisma.perfil.update({
         where: {
-            id_usuario: idUsuario
+            id_usuario: id_usuario
         },
         data: {
-            ...data
+            ...data,
+            genero: data.genero as genero,
         }
     });
 

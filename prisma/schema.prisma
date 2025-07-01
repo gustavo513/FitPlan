@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum genero{
+  M //Masculino
+  F //Femenino
+}
+
 enum SolicitudEstado{
   P //pendiente
   A //aceptado
@@ -131,7 +136,7 @@ model Perfil {
   id_perfil Int @id @default(autoincrement())
   nombre String?
   apellido String?
-  genero Int 
+  genero genero
   fechaNacimiento DateTime
   altura Float
   peso Float
@@ -161,7 +166,7 @@ model PrefAlim{
 model Afeccion{
 
   id_afeccion Int @id @default(autoincrement())
-  descripcion String
+  descripcion String @unique
   perfil Perfil_Afeccion[]
   fecha DateTime @default(now())
 
@@ -234,10 +239,8 @@ model Perfil_Afeccion{
   cant_comida Int
   peso_inicial Float
   peso_final Float
-  estado_peso_final Int
   calificacion Float
   comentario String?
-  estado_calif Int
   estado Int
 
   //un plan pertenece a un solo usuario
@@ -288,7 +291,7 @@ model Perfil_Afeccion{
  model Ejercicio {
 
   id_ejercicio Int @id @default(autoincrement())
-  descripcion String
+  descripcion String @unique
   duracion Int
   peso Float?
 
@@ -325,7 +328,7 @@ model Plan_Ejercicio {
 model Ingrediente {
 
   id_ingrediente Int @id @default(autoincrement())
-  descripcion String
+  descripcion String @unique
 
   planes Plan_Ingrediente[]
   micronutrientes Ingrediente_Micronutriente[]
@@ -380,7 +383,7 @@ model Plan_Suplemento {
 model Suplemento {
 
   id_suplemento Int @id @default(autoincrement())
-  descripcion String
+  descripcion String @unique
 
   planes Plan_Suplemento[]
   micronutrientes Suplemento_Micronutriente[]
@@ -390,7 +393,7 @@ model Suplemento {
 model UnidadMedida {
 
   id_unidad_medida Int @id @default(autoincrement())
-  descripcion String
+  descripcion String @unique
   abreviatura String
 
   plan_ingrediente Plan_Ingrediente[]
@@ -401,7 +404,7 @@ model UnidadMedida {
 model Micronutriente {
 
   id_micronutriente Int @id @default(autoincrement())
-  descripcion String
+  descripcion String @unique
   ingredientes Ingrediente_Micronutriente[]
   suplementos Suplemento_Micronutriente[]
 

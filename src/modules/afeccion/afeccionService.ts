@@ -2,6 +2,17 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+function formatearDescripcion(descripcion: string){
+
+    descripcion = descripcion.trim();
+
+    descripcion = descripcion.toLowerCase();
+
+    descripcion = descripcion.charAt(0).toUpperCase() + descripcion.slice(1);
+
+    return descripcion;
+}
+
 export async function obtenerAfecciones(cantReg: number) {
     const afecciones = await prisma.afeccion.findMany({
         skip: cantReg - 10,
@@ -19,7 +30,10 @@ export async function obtenerAfeccionPorDescripcion(descripcion: string) {
     
     const afeccion = await prisma.afeccion.findMany({
         where: {
-            descripcion: descripcion
+            descripcion: {
+                contains: descripcion.toLowerCase(),
+                mode: 'insensitive'
+            }
         }
     });
 
@@ -34,6 +48,9 @@ export async function agregarAfeccion(data: { descripcion: string }, idUsuario: 
         }
     });
 
+    data.descripcion = formatearDescripcion(data.descripcion);
+
+    // Verificar que no exista otro registro con la misma descripción. Si ya existe, entonces solamente vincular con el perfil de usuario
     const afeccion = await prisma.afeccion.create({
         data: {
             ...data
@@ -58,6 +75,7 @@ export async function vincularAfeccionPerfil(idAfeccion: number, idUsuario: numb
         }
     });
 
+    // Cambiar a update en vez de create
     const afeccionPerfil = await prisma.perfil_Afeccion.create({
         data: {
             id_afeccion: idAfeccion,
@@ -70,7 +88,6 @@ export async function vincularAfeccionPerfil(idAfeccion: number, idUsuario: numb
 
 export async function desvincularAfeccionPerfil(idAfeccion: number, idPerfil: number) {
     
-
     const afeccionPerfil = await prisma.perfil_Afeccion.updateMany({
         where: {
             id_afeccion: idAfeccion,

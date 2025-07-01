@@ -18,7 +18,7 @@ const router = Router();
 
 router.get('/', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], miPerfil);
 router.get('/obtener/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtener);
-router.post('/agregar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], validate(perfilSchema), agregar);
-router.put('/actualizar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], validate(perfilSchema), actualizar);
+router.post('/agregar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], validate([perfilSchema]), agregar);
+router.put('/actualizar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], validate([perfilSchema]), actualizar);
 
 export default router;

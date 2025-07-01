@@ -8,6 +8,13 @@ import {
     vincularAfeccionPerfil,
 } from './afeccionService';
 
+import { AfeccionSchemaBody } from './afeccionSchema';
+
+function formatearDescripcion(descripcion: string){
+    
+    descripcion = descripcion.trim().toLowerCase();
+}
+
 export async function obtener(req: Request, res: Response) {
     try {
         const cantReg = parseInt(req.params.cantReg);
@@ -34,11 +41,13 @@ export async function obtenerPorDescripcion(req: Request, res: Response) {
     }
 }
 
-export async function agregar(req: Request, res: Response) {
+export async function agregar(req: Request<{}, {}, AfeccionSchemaBody>, res: Response) {
     try {
         const idUsuario = res.locals.user;
 
-        const descripcion = req.body.descripcion;
+        let {descripcion} = req.body;
+
+        
 
         const afeccion = await agregarAfeccion({ descripcion }, idUsuario);
 

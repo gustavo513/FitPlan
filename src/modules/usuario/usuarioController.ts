@@ -5,7 +5,7 @@ import {
     obtenerUsuarioPorId,
     obtenerUsuarioPorNombreUsuario,
     actualizarUsuario,
-    cambiarContrasenia,
+    cambiarContrasena,
     eliminarUsuario,
     listarUsuariosSupervisores,
     listarUsuariosSupervisados,
@@ -68,11 +68,11 @@ export async function actualizarContrasenia(req: Request, res: Response){
     try{
         const idUsuario = res.locals.user;
 
-        const contraseniaActual = req.body.contrasenia;
+        const contrasenaActual = req.body.contrasena;
 
-        const contraseniaNueva = req.body.contrasenia_nueva;
+        const contrasenaNueva = req.body.contrasena_nueva;
 
-        await cambiarContrasenia(contraseniaActual, contraseniaNueva, idUsuario);
+        await cambiarContrasena(contrasenaActual, contrasenaNueva, idUsuario);
 
         res.status(200).send({message: 'Cambio de contraseña exitoso'});
     }

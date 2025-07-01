@@ -91,7 +91,7 @@ export async function actualizarUsuario(
     });
 };
 
-export async function cambiarContrasenia(contrasenia: string, contraseniaNueva: string, idUsuario: number){
+export async function cambiarContrasena(contrasenia: string, contrasenaNueva: string, idUsuario: number){
     
     const usuario = await prisma.usuario.findUnique({
         where: {
@@ -103,7 +103,7 @@ export async function cambiarContrasenia(contrasenia: string, contraseniaNueva: 
     console.log(usuario?.id_usuario);
     
     if (await bcrypt.compare(contrasenia, usuario?.contrasenia!)) {
-        const contrasenia_hashed = await bcrypt.hash(contraseniaNueva, 10);
+        const contrasenia_hashed = await bcrypt.hash(contrasenaNueva, 10);
     
         return await prisma.usuario.update({
             where: {

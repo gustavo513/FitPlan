@@ -21,7 +21,7 @@ router.get('/', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], miUs
 router.get('/obtener-por-id/:id', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtenerPorId);
 router.get('/obtener-por-nombre-usuario/:nombre_usuario', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], obtenerPorNombreUsuario);
 router.put('/actualizar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizar);
-router.patch('/cambiar-contrasenia', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizarContrasenia);
+router.patch('/cambiar-contrasena', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], actualizarContrasenia);
 router.patch('/eliminar', [autenticacion, autorizacion(['Estándar', 'Supervisor'])], eliminar);
 router.get('/supervisores', [autenticacion, autorizacion(['Estándar'])], listarSupervisores);
 router.get('/usuarios-supervisados', [autenticacion, autorizacion(['Supervisor'])], listarSupervisados);
