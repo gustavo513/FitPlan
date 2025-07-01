@@ -4,7 +4,7 @@
 
 git clone https://github.com/gustavo513/FitPlan
 
--- Instalar las dependencias
+-- Instalar las dependencias en /FitPlan
 
 npm install
 
@@ -21,6 +21,10 @@ GOOGLE_CLIENT_SECRET=" " //credencial generado por Google en APIs & Services de 
 EMAIL_USER = " " //correo para servicios de soporte como restablecimiento de contraseñas o verifición de correo
 
 PASS_USER = " " //contraseña de aplicación generada por Google
+
+-- Transpilar los archivos Typescript a Javascript ejecutando el comando correspondiente en /FitPlan
+
+npm run build
 
 -- Migrar el esquema Prisma a la base de datos
 
