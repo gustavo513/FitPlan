@@ -7,11 +7,10 @@ import {
     obtenerAfeccionPorDescripcion,
     vincularAfeccionPerfil,
 } from './afeccionService';
-
 import { AfeccionSchemaBody } from './afeccionSchema';
 
-function formatearDescripcion(descripcion: string){
-    
+function formatearDescripcion(descripcion: string) {
+
     descripcion = descripcion.trim().toLowerCase();
 }
 
@@ -32,9 +31,10 @@ export async function obtenerPorDescripcion(req: Request, res: Response) {
     try {
         const descripcion = req.body.descripcion;
 
-        const afeccion = await obtenerAfeccionPorDescripcion(descripcion);
-
-        return res.status(200).send(afeccion);
+        if (descripcion != '') {
+            const afeccion = await obtenerAfeccionPorDescripcion(descripcion);
+            return res.status(200).send(afeccion);
+        }
     }
     catch (error: any) {
         return res.status(404).send({ message: 'Registro no encontrado', error: error.message });
@@ -45,9 +45,9 @@ export async function agregar(req: Request<{}, {}, AfeccionSchemaBody>, res: Res
     try {
         const idUsuario = res.locals.user;
 
-        let {descripcion} = req.body;
+        let { descripcion } = req.body;
 
-        
+
 
         const afeccion = await agregarAfeccion({ descripcion }, idUsuario);
 
@@ -61,11 +61,11 @@ export async function agregar(req: Request<{}, {}, AfeccionSchemaBody>, res: Res
 export async function vincular(req: Request, res: Response) {
     try {
 
-        const idUsuario = res.locals.user;
+        const id_perfil = req.body.id_perfil;
 
-        const idAfeccion = parseInt(req.params.id);
+        const afecciones = req.body.afecciones;
 
-        const afeccion = await vincularAfeccionPerfil(idAfeccion, idUsuario);
+        const afeccion = await vincularAfeccionPerfil(afecciones, id_perfil);
 
         return res.status(200).send(afeccion);
     }
@@ -74,15 +74,15 @@ export async function vincular(req: Request, res: Response) {
     }
 }
 
-export async function desvincular(req: Request, res: Response){
+export async function desvincular(req: Request, res: Response) {
     try {
-        const idPerfil = parseInt(req.params.idPerfil);
-        
-        const idAfeccion = parseInt(req.params.idAfeccion);
+        const id_perfil = parseInt(req.body.id_perfil);
 
-        const afeccion = await desvincularAfeccionPerfil(idAfeccion, idPerfil);
+        const afecciones = req.body.afecciones;
 
-        return res.status(200).send(afeccion);
+        const resultado = await desvincularAfeccionPerfil(id_perfil, afecciones);
+
+        return res.status(200).send(resultado);
     }
     catch (error: any) {
         return res.status(400).send({ message: 'Error al intentar quitar afeccion', error: error.message });

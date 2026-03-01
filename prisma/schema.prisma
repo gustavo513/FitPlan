@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,423 +7,351 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum genero{
-  M //Masculino
-  F //Femenino
-}
-
-enum SolicitudEstado{
-  P //pendiente
-  A //aceptado
-  R //rechazado
-  C //cancelado
-}
-
 model Usuario {
-
-  id_usuario Int @id @default(autoincrement())
-  email String? @unique
-  nombre_usuario String? @unique
-  contrasenia String?
-  confirm_email Int @default(0)
-  token String?
-  token_expiracion DateTime?
-  fecha_creacion DateTime @default(now())
-  fecha_ult_sesion DateTime @default(now())
-  fecha_eliminacion DateTime?
-  estado Int @default(0)
-
-  //un usuario tiene un solo rol
-  rol Rol @relation(fields: [id_rol], references: [id_rol])
-  id_rol Int @default(1)
-
-  //un usuario tiene un solo perfil
-  perfil Perfil?
-
-  //un usuario puede enviar varias sugerencias con el tiempo
-  sugerencia Sugerencia[]
-
-  //un usuario puede supervisar a varios usuarios y un usuario supervisado por varios supervisores
-  supervisados Usuario_Supervisor[] @relation("Estandar")
-  supervisores Usuario_Supervisor[] @relation("Supervisor")
-
-  //un usuario puede enviar solicitudes de supervisión a varios supervisores
-  solicitudes SolicitudSupervision[]
-
-  //un usuario puede generar varios planes de dieta y ejercicios
-  planes Plan[] @relation("PlanUsuario")
-
-  //un usuario supervisor (nutricionista/entrenador) puede supervisar varios planes
+  id_usuario         Int                    @id @default(autoincrement())
+  email              String?                @unique
+  nombre_usuario     String?                @unique
+  contrasenia        String?
+  confirm_email      Int                    @default(0)
+  token              String?
+  token_expiracion   DateTime?
+  fecha_creacion     DateTime               @default(now())
+  fecha_ult_sesion   DateTime               @default(now())
+  fecha_eliminacion  DateTime?
+  estado             Int                    @default(0)
+  id_rol             Int                    @default(1)
+  autenticacion      MetodoAut[]
+  perfil             Perfil?
+  planes             Plan[]                 @relation("PlanUsuario")
+  solicitudes        SolicitudSupervision[]
+  sugerencia         Sugerencia[]
   planesSupervisados Supervision_Plan[]
+  rol                Rol                    @relation(fields: [id_rol], references: [id_rol])
+  supervisados       Usuario_Supervisor[]   @relation("Estandar")
+  supervisores       Usuario_Supervisor[]   @relation("Supervisor")
 
-  //un usuario puede tener uno o más métodos de autenticación
-  autenticacion MetodoAut[]
-  
+  @@map("usuario")
 }
 
-model Usuario_Supervisor{
-
-  supervisados Usuario @relation("Estandar", fields: [id_estandar], references: [id_usuario])
-  id_estandar Int
-
-  supervisores Usuario @relation("Supervisor", fields: [id_supervisor], references: [id_usuario])
-  id_supervisor Int
-
+model Usuario_Supervisor {
+  id_estandar    Int
+  id_supervisor  Int
   fecha_conexion DateTime @default(now())
-
-  estado Int @default(1)
+  estado         Int      @default(1)
+  supervisados   Usuario  @relation("Estandar", fields: [id_estandar], references: [id_usuario])
+  supervisores   Usuario  @relation("Supervisor", fields: [id_supervisor], references: [id_usuario])
 
   @@id([id_estandar, id_supervisor])
-
+  @@map("usuario_supervisor")
 }
 
-model SolicitudSupervision{
-
-  id_solicitud Int @id @default(autoincrement())
+model SolicitudSupervision {
+  id_solicitud  Int             @id @default(autoincrement())
   id_supervisor Int
-  fecha DateTime @default(now())
-  estado SolicitudEstado @default(P)
+  fecha         DateTime        @default(now())
+  estado        SolicitudEstado @default(P)
+  id_usuario    Int
+  usuario       Usuario         @relation(fields: [id_usuario], references: [id_usuario])
 
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
-  id_usuario Int
-
+  @@map("solicitud_supervision")
 }
 
 model MetodoAut {
-
-  id_proveedor Int
-  id_externo String @unique
+  id_proveedor   Int
+  id_externo     String   @unique
   fecha_creacion DateTime @default(now())
-
-  //un método de autenticación pertenece a un solo usuario
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
-  id_usuario Int
+  id_usuario     Int
+  usuario        Usuario  @relation(fields: [id_usuario], references: [id_usuario])
 
   @@id([id_proveedor, id_externo])
-
+  @@map("metodo_autenticacion")
 }
 
 model Rol {
-
-  id_rol Int @id @default(autoincrement())
+  id_rol      Int       @id @default(autoincrement())
   descripcion String
+  usuario     Usuario[]
 
-  //un rol puede ser compartido entre varios usuarios. Estándar (1), Supervisor (2). El valor predeterminado es 1.
-  usuario Usuario[]
-
+  @@map("rol")
 }
 
 model Sugerencia {
+  id_sugerencia Int      @id @default(autoincrement())
+  fecha         DateTime @default(now())
+  comentario    String?
+  id_usuario    Int
+  usuario       Usuario  @relation(fields: [id_usuario], references: [id_usuario])
 
-  id_sugerencia Int @id @default(autoincrement())
-  fecha DateTime @default(now())
-  comentario String?
-
-  //una sugerencia pertence a un solo usuario
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
-  id_usuario Int
-
+  @@map("sugerencia")
 }
 
 model Perfil {
-
-  id_perfil Int @id @default(autoincrement())
-  nombre String?
-  apellido String?
-  genero genero
+  id_perfil       Int               @id @default(autoincrement())
+  nombre          String?
+  apellido        String?
+  genero          genero
   fechaNacimiento DateTime
-  altura Float
-  peso Float
+  altura          Float
+  peso            Float
+  id_usuario      Int               @unique
+  id_ciudad       Int?
+  url_foto_perfil String?
+  ciudad          Ciudad?           @relation(fields: [id_ciudad], references: [id_ciudad])
+  usuario         Usuario           @relation(fields: [id_usuario], references: [id_usuario])
+  afeccion        Perfil_Afeccion[]
+  pref_alim       Perfil_PrefAlim[]
 
-  //un perfil pertenence a un solo usuario
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario])
-  id_usuario Int @unique
-
-  //un perfil está asociado a varias preferencias alimentarias y puede estar asociado a varias afecciones
-  pref_alim Perfil_PrefAlim[]
-  afeccion Perfil_Afeccion[]
-
-  //un perfil pertenece a alguna ciudad
-  ciudad Ciudad? @relation(fields: [id_ciudad], references: [id_ciudad])
-  id_ciudad Int?
-
+  @@map("perfil")
 }
 
-model PrefAlim{
+model PrefAlim {
+  id_pref_alim Int               @id @default(autoincrement())
+  descripcion  String
+  perfil       Perfil_PrefAlim[]
 
-  id_pref_alim Int @id @default(autoincrement())
-  descripcion String
-  perfil Perfil_PrefAlim[]
-
+  @@map("preferencia_alimentaria")
 }
 
-model Afeccion{
+model Afeccion {
+  id_afeccion Int               @id @default(autoincrement())
+  descripcion String            @unique
+  fecha       DateTime          @default(now())
+  perfil      Perfil_Afeccion[]
 
-  id_afeccion Int @id @default(autoincrement())
-  descripcion String @unique
-  perfil Perfil_Afeccion[]
-  fecha DateTime @default(now())
-
+  @@map("afeccion")
 }
 
 model Ciudad {
-
-  id_ciudad Int @id @default(autoincrement())
-  nombre String
-  region Region @relation(fields: [id_region], references: [id_region])
+  id_ciudad Int      @id @default(autoincrement())
+  nombre    String
   id_region Int
-  perfiles Perfil[]
+  region    Region   @relation(fields: [id_region], references: [id_region])
+  perfiles  Perfil[]
 
+  @@map("ciudad")
 }
 
 model Region {
+  id_region Int      @id @default(autoincrement())
+  nombre    String
+  id_pais   Int
+  ciudades  Ciudad[]
+  pais      Pais     @relation(fields: [id_pais], references: [id_pais])
 
-  id_region Int @id @default(autoincrement())
-  nombre String
-  ciudades Ciudad[]
-  pais Pais @relation(fields: [id_pais], references: [id_pais])
-  id_pais Int
-
+  @@map("region")
 }
 
 model Pais {
-
-  id_pais Int @id @default(autoincrement())
-  nombre String
+  id_pais  Int      @id @default(autoincrement())
+  nombre   String
   regiones Region[]
 
+  @@map("pais")
 }
 
-model Perfil_PrefAlim{
-
-  id_perf_prefalim Int @id @default(autoincrement())
-
-  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
-  id_perfil Int
-
-  prefalim PrefAlim @relation(fields: [id_pref_alim], references: [id_pref_alim])
+model Perfil_PrefAlim {
+  id_perfil    Int
   id_pref_alim Int
+  fecha_inicio DateTime  @default(now())
+  fecha_fin    DateTime?
+  estado       Int       @default(1)
+  perfil       Perfil    @relation(fields: [id_perfil], references: [id_perfil])
+  prefalim     PrefAlim  @relation(fields: [id_pref_alim], references: [id_pref_alim])
 
-  fecha_inicio DateTime @default(now())
-  fecha_fin DateTime?
-  estado Int @default(1) //0: desvinculado; 1: vinculado
-
+  @@id([id_perfil, id_pref_alim])
+  @@map("perfil_preferencia_alimentaria")
 }
 
-model Perfil_Afeccion{
-  id_perf_afec Int @id @default(autoincrement())
+model Perfil_Afeccion {
+  id_perfil           Int
+  id_afeccion         Int
+  fecha_inicio        DateTime  @default(now())
+  fecha_actualizacion DateTime? @updatedAt
+  estado              Int       @default(1)
+  afeccion            Afeccion  @relation(fields: [id_afeccion], references: [id_afeccion])
+  perfil              Perfil    @relation(fields: [id_perfil], references: [id_perfil])
 
-  perfil Perfil @relation(fields: [id_perfil], references: [id_perfil])
-  id_perfil Int
-
-  afeccion Afeccion @relation(fields: [id_afeccion], references: [id_afeccion])
-  id_afeccion Int
-
-  fecha_inicio DateTime @default(now())
-  fecha_fin DateTime?
-  estado Int @default(1) //0: desvinculado; 1: vinculado
-
+  @@id([id_perfil, id_afeccion])
+  @@map("perfil_afeccion")
 }
 
- model Plan {
-
-  //datos básicos de un plan
-  id_plan Int @id @default(autoincrement())
-  fecha DateTime @default(now())
-  cant_comida Int
-  peso_inicial Float
-  peso_final Float
-  calificacion Float
-  comentario String?
-  estado Int
-
-  //un plan pertenece a un solo usuario
-  usuario Usuario @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
-  id_usuario Int
-
-  //un plan tiene un solo objetivo
-  objetivo Objetivo @relation(fields: [id_objetivo], references: [id_objetivo])
-  id_objetivo Int
-
-  //un plan tiene varios ejercicios
-  ejercicios Plan_Ejercicio[]
-
-  //un plan puede ser supervisado por varios usuarios (nutricionista/entrenador)
+model Plan {
+  id_plan              Int                @id @default(autoincrement())
+  fecha                DateTime           @default(now())
+  cant_comida          Int
+  peso_inicial         Float
+  peso_final           Float
+  calificacion         Float
+  comentario           String?
+  estado               Int
+  id_usuario           Int
+  id_objetivo          Int
+  objetivo             Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
+  usuario              Usuario            @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
+  ejercicios           Plan_Ejercicio[]
+  ingredientes         Plan_Ingrediente[]
+  suplementos          Plan_Suplemento[]
   usuariosSupervisores Supervision_Plan[]
 
-  //un plan se compone de varios ingredientes y suplementos
-  ingredientes Plan_Ingrediente[]
-  suplementos Plan_Suplemento[]
+  @@map("plan")
+}
 
- }
-
- model Supervision_Plan {
-
-  supervisor Usuario @relation(fields: [id_supervisor], references: [id_usuario])
-  id_supervisor Int
-
-  planSupervisado Plan @relation(fields: [id_plan], references: [id_plan])
-  id_plan Int
-
-  comentario String?
+model Supervision_Plan {
+  id_supervisor    Int
+  id_plan          Int
+  comentario       String?
   fecha_comentario DateTime?
+  planSupervisado  Plan      @relation(fields: [id_plan], references: [id_plan])
+  supervisor       Usuario   @relation(fields: [id_supervisor], references: [id_usuario])
 
   @@id([id_supervisor, id_plan])
+  @@map("supervision_plan")
+}
 
- }
-
- model Objetivo {
-
-  id_objetivo Int @id @default(autoincrement())
+model Objetivo {
+  id_objetivo Int    @id @default(autoincrement())
   descripcion String
+  plan        Plan[]
 
-  //un objetivo puede ser compartido por varios planes
-  plan Plan[]
+  @@map("objetivo")
+}
 
- }
-
- model Ejercicio {
-
-  id_ejercicio Int @id @default(autoincrement())
-  descripcion String @unique
-  duracion Int
-  peso Float?
-
-  //un ejercicio pertenece a un tipo específico de ejercicios
-  tipo_ejercicio TipoEjercicio @relation(fields: [id_tipo_ejercicio], references: [id_tipo_ejercicio])
+model Ejercicio {
+  id_ejercicio      Int              @id @default(autoincrement())
+  descripcion       String           @unique
+  duracion          Int
+  peso              Float?
   id_tipo_ejercicio Int
+  tipo_ejercicio    TipoEjercicio    @relation(fields: [id_tipo_ejercicio], references: [id_tipo_ejercicio])
+  planes            Plan_Ejercicio[]
 
-  //un ejercicio puede ser compartido por varios planes
-  planes Plan_Ejercicio[]
-
- }
+  @@map("ejercicio")
+}
 
 model TipoEjercicio {
+  id_tipo_ejercicio Int         @id @default(autoincrement())
+  descripcion       String
+  ejercicios        Ejercicio[]
 
-  id_tipo_ejercicio Int @id @default(autoincrement())
-  descripcion String
-
-  //un tipo de ejercicio puede ser compartido por varios ejercicios
-  ejercicios Ejercicio[]
-
+  @@map("tipo_ejercicio")
 }
 
 model Plan_Ejercicio {
-
-  ejercicio Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
-  id_ejercicio Int 
-  plan Plan @relation(fields: [id_plan], references: [id_plan])
-  id_plan Int
+  id_ejercicio Int
+  id_plan      Int
+  ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
+  plan         Plan      @relation(fields: [id_plan], references: [id_plan])
 
   @@id([id_ejercicio, id_plan])
-
+  @@map("plan_ejercicio")
 }
 
 model Ingrediente {
-
-  id_ingrediente Int @id @default(autoincrement())
-  descripcion String @unique
-
-  planes Plan_Ingrediente[]
+  id_ingrediente  Int                          @id @default(autoincrement())
+  descripcion     String                       @unique
   micronutrientes Ingrediente_Micronutriente[]
+  planes          Plan_Ingrediente[]
 
+  @@map("ingrediente")
 }
 
 model Plan_Ingrediente {
-
-  ingrediente Ingrediente @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  id_ingrediente Int
-
-  plan Plan @relation(fields: [id_plan], references: [id_plan])
-  id_plan Int 
+  id_ingrediente   Int
+  id_plan          Int
+  comida           Int
+  medida           Float
+  id_unidad_medida Int
+  grasa            Float
+  proteinas        Float
+  carbohidratos    Float
+  ingrediente      Ingrediente  @relation(fields: [id_ingrediente], references: [id_ingrediente])
+  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
+  unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 
   @@id([id_ingrediente, id_plan])
-
-  //comida: desayuno (1), media-mañana (2), almuerzo (3), merienda (4) y cena (5)
-  comida Int
-
-  medida Float
-  unidad_medida UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
-  id_unidad_medida Int
-
-  //macronutrientes
-  grasa Float
-  proteinas Float
-  carbohidratos Float
-
+  @@map("plan_ingrediente")
 }
 
 model Plan_Suplemento {
-
-  suplemento Suplemento @relation(fields: [id_suplemento], references: [id_suplemento])
-  id_suplemento Int
-
-  plan Plan @relation(fields: [id_plan], references: [id_plan])
-  id_plan Int
+  id_suplemento    Int
+  id_plan          Int
+  medida           Float
+  id_unidad_medida Int
+  grasa            Float
+  proteinas        Float
+  carbohidratos    Float
+  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
+  suplemento       Suplemento   @relation(fields: [id_suplemento], references: [id_suplemento])
+  unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 
   @@id([id_suplemento, id_plan])
-
-  medida Float
-  unidad_medida UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
-  id_unidad_medida Int
-
-  //macronutrientes
-  grasa Float
-  proteinas Float
-  carbohidratos Float
-
+  @@map("plan_suplemento")
 }
 
 model Suplemento {
-
-  id_suplemento Int @id @default(autoincrement())
-  descripcion String @unique
-
-  planes Plan_Suplemento[]
+  id_suplemento   Int                         @id @default(autoincrement())
+  descripcion     String                      @unique
+  planes          Plan_Suplemento[]
   micronutrientes Suplemento_Micronutriente[]
 
+  @@map("suplemento")
 }
 
 model UnidadMedida {
-
-  id_unidad_medida Int @id @default(autoincrement())
-  descripcion String @unique
-  abreviatura String
-
+  id_unidad_medida Int                @id @default(autoincrement())
+  descripcion      String             @unique
+  abreviatura      String
   plan_ingrediente Plan_Ingrediente[]
-  plan_suplemento Plan_Suplemento[]
+  plan_suplemento  Plan_Suplemento[]
 
+  @@map("unidad_medida")
 }
 
 model Micronutriente {
+  id_micronutriente Int                          @id @default(autoincrement())
+  descripcion       String                       @unique
+  ingredientes      Ingrediente_Micronutriente[]
+  suplementos       Suplemento_Micronutriente[]
 
-  id_micronutriente Int @id @default(autoincrement())
-  descripcion String @unique
-  ingredientes Ingrediente_Micronutriente[]
-  suplementos Suplemento_Micronutriente[]
-
+  @@map("macronutriente")
 }
 
 model Ingrediente_Micronutriente {
-
-  ingrediente Ingrediente @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  id_ingrediente Int
-
-  micronutriente Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  id_ingrediente    Int
   id_micronutriente Int
+  ingrediente       Ingrediente    @relation(fields: [id_ingrediente], references: [id_ingrediente])
+  micronutriente    Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
 
   @@id([id_ingrediente, id_micronutriente])
-
+  @@map("ingrediente_macronutriente")
 }
 
 model Suplemento_Micronutriente {
-
-  suplemento Suplemento @relation(fields: [id_suplemento], references: [id_suplemento])
-  id_suplemento Int
-
-  micronutriente Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  id_suplemento     Int
   id_micronutriente Int
+  micronutriente    Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  suplemento        Suplemento     @relation(fields: [id_suplemento], references: [id_suplemento])
 
   @@id([id_suplemento, id_micronutriente])
+  @@map("suplemento_micronutriente")
+}
 
+model registro_error {
+  id             Int      @id @default(autoincrement())
+  status_code    Int
+  message        String
+  errors         String?
+  fecha_registro DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+}
+
+enum genero {
+  M
+  F
+}
+
+enum SolicitudEstado {
+  P
+  A
+  R
+  C
 }

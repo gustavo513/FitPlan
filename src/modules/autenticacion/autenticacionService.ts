@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import {PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { enviarEmail } from "./mailer";
 
 const prisma = new PrismaClient();
 
-export async function registroUsuario(email: string, nombre_usuario: string, contrasenia: string){
-    
+export async function registroUsuario(email: string, nombre_usuario: string, contrasenia: string) {
+
     const hashedPassword = await bcrypt.hash(contrasenia, 10);  //encripta o "hashea" una contraseña para almacenarla en la base de datos
 
     const usuario = await prisma.usuario.create({
@@ -16,11 +16,11 @@ export async function registroUsuario(email: string, nombre_usuario: string, con
             contrasenia: hashedPassword
         }
     });
-        
+
     return generarToken(usuario.id_usuario);
 }
 
-export async function loginUsuario(nombre_usuario: string, contrasenia: string){
+export async function loginUsuario(nombre_usuario: string, contrasenia: string) {
 
     const usuario = await prisma.usuario.findFirst({
         where: {
@@ -36,7 +36,7 @@ export async function loginUsuario(nombre_usuario: string, contrasenia: string){
     });
 
     //verifica si la contraseña ingresada genera el mismo hash que la contraseña almacenada
-    if (!usuario || !usuario.contrasenia || !await bcrypt.compare(contrasenia, usuario.contrasenia)){    
+    if (!usuario || !usuario.contrasenia || !await bcrypt.compare(contrasenia, usuario.contrasenia)) {
         throw new Error('Nombre de usuario o contraseña incorrectos');
     }
 
@@ -54,7 +54,7 @@ export async function loginUsuario(nombre_usuario: string, contrasenia: string){
 }
 
 export async function solicitudValidarCorreo(email: string) {
-    
+
     const usuario = await prisma.usuario.findUnique({
         where: {
             email: email
@@ -68,7 +68,7 @@ export async function solicitudValidarCorreo(email: string) {
 }
 
 export async function solicitudValidarNombreUsuario(nombre_usuario: string) {
-    
+
     const usuario = await prisma.usuario.findUnique({
         where: {
             nombre_usuario: nombre_usuario
@@ -92,8 +92,8 @@ export async function solicitudVerificarCorreo(idUsuario: number) {
 
     const fechaActual = new Date();
     const fechaExpiracion = new Date(fechaActual);
-    fechaExpiracion.setHours(fechaActual.getHours() + 1);  
-    
+    fechaExpiracion.setHours(fechaActual.getHours() + 1);
+
     await prisma.usuario.update({
         where: {
             id_usuario: idUsuario
@@ -142,7 +142,7 @@ export async function solicitudConfirmarCorreo(token: string) {
 }
 
 export async function solicitudContrasenaOlvidada(email: string) {
-    
+
     const usuario = await prisma.usuario.findUnique({
         where: {
             email: email
@@ -210,6 +210,6 @@ export async function solicitudRestablecerContrasena(token: string, contrasena: 
 }
 
 
-function generarToken(userId: Number){
-    return jwt.sign({id: userId}, process.env.JWT_SECRET_KEY as string, {expiresIn: '24h'}) //función que genera un token
+function generarToken(userId: Number) {
+    return jwt.sign({ id: userId }, process.env.JWT_SECRET_KEY as string, { expiresIn: '24h' }) //función que genera un token
 }
