@@ -186,7 +186,8 @@ export async function agregarPerfil(
                     const preferencia = await tx.perfil_PrefAlim.create({
                         data: {
                             id_perfil: perfil.id_perfil,
-                            id_pref_alim: item.id
+                            id_pref_alim: item.id,
+                            estado: 1
                         }
                     });
 
@@ -296,7 +297,7 @@ export async function actualizarPerfil(
                             }
                         },
                         update: {
-                            estado: item.estado
+                            estado: 1
                         },
                         create: {
                             id_perfil: perfil.id_perfil,

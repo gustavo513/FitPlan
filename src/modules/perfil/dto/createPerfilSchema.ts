@@ -11,13 +11,11 @@ export const createPerfilSchema = z.object({
         afecciones: z.array(
             z.object({
                 id: z.number().positive(),
-                estado: z.number()
             })
         ),
         preferencias_alimentarias: z.array(
             z.object({
                 id: z.number().positive(),
-                estado: z.number()
             })
         )
     }),

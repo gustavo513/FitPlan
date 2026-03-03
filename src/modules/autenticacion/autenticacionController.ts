@@ -17,6 +17,7 @@ import {
     ContrasenaRequeridaSchemaBody,
     TokenRequeridoSchemaParams
 } from "./autenticacionSchema";
+import { ErrorLog } from "../../utils/errorHandler";
 
 export async function registro(req: Request<{}, {}, RegistroSchemaBody>, res: Response) {
 

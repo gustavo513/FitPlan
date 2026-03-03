@@ -2,14 +2,28 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { enviarEmail } from "./mailer";
+import { ErrorLog } from "../../utils/errorHandler";
 
 const prisma = new PrismaClient();
 
 export async function registroUsuario(email: string, nombre_usuario: string, contrasenia: string) {
 
+    const usuario = await prisma.usuario.findFirst({
+        where: {
+            OR: [
+                { email: email },
+                { nombre_usuario: nombre_usuario }
+            ]
+        }
+    });
+
+    if (usuario != null) {
+        throw new Error('El nombre de usuario o correo electrónico ya se encuentra registrado');
+    }
+
     const hashedPassword = await bcrypt.hash(contrasenia, 10);  //encripta o "hashea" una contraseña para almacenarla en la base de datos
 
-    const usuario = await prisma.usuario.create({
+    const nuevo_usuario = await prisma.usuario.create({
         data: {
             email: email,
             nombre_usuario,
@@ -17,7 +31,7 @@ export async function registroUsuario(email: string, nombre_usuario: string, con
         }
     });
 
-    return generarToken(usuario.id_usuario);
+    return generarToken(nuevo_usuario.id_usuario);
 }
 
 export async function loginUsuario(nombre_usuario: string, contrasenia: string) {

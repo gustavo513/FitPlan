@@ -11,13 +11,12 @@ export const updatePerfilSchema = z.object({
         afecciones: z.array(
             z.object({
                 id: z.number({ required_error: 'No se encontró el identificador de la afección' }).positive(),
-                estado: z.number({ required_error: 'Se requiere proporcionar estado de afecciones' })
+
             })
         ).optional(),
         preferencias_alimentarias: z.array(
             z.object({
                 id: z.number({ required_error: 'No se encontró el identificador de la preferencia seleccionada' }).positive(),
-                estado: z.number({ required_error: 'Se requiere proporcionar estado de la preferencia seleccionada' })
             })
         ).optional(),
     }),
