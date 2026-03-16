@@ -181,7 +181,7 @@ model Plan {
   cant_comida          Int
   peso_inicial         Float
   peso_final           Float?
-  calificacion         Float?
+  calificacion         Int?
   comentario           String?
   estado               Int?               @default(1)
   id_usuario           Int

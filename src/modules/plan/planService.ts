@@ -211,3 +211,77 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
     }
 }
 
+export const obtenerPlanActualService = async (id_usuario: number) => {
+
+    // Obtener el plan activo, o vencido para generar nuevo plan
+    const plan = await prisma.plan.findMany({
+        where: {
+            OR: [
+                {
+                    estado: 1,
+                    id_usuario: id_usuario
+                },
+                {
+                    estado: 2,
+                    id_usuario: id_usuario
+                }
+            ]
+        },
+        include: {
+            ejercicios: {
+                select: {
+                    ejercicio: true,
+                    duracion: true,
+                    peso: true
+                }
+            },
+            ingredientes: {
+                select: {
+                    id_ingrediente: true,
+                    ingrediente: true,
+                    unidad_medida: true,
+                    grasa: true,
+                    proteinas: true,
+                    carbohidratos: true
+                }
+            },
+            suplementos: {
+                select: {
+                    id_suplemento: true,
+                    suplemento: {
+                        select: {
+                            descripcion: true
+                        }
+                    },
+                    medida: true,
+                    unidad_medida: true
+                }
+            }
+        }
+    });
+
+    if(plan != null){
+        return plan;
+    }
+    else{
+        throw new NotFoundError('No se encontró ningún plan vigente');
+    }
+} 
+
+export const actualizarPlanService = async (id_plan: number, peso_final: number, calificacion: number, comentario: string) => {
+    // Se actualiza el plan vencido con el peso del usuario al finalizar el plan,
+    // la calificación proporcionada y un comentario (opcional)
+    const resultado = await prisma.plan.update({
+        data: {
+            peso_final: peso_final,
+            calificacion: calificacion,
+            comentario: comentario
+        },
+        where: {
+            id_plan: id_plan,
+            estado: 2
+        }
+    });
+
+    return resultado;
+}
