@@ -270,12 +270,14 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
 
 export const actualizarPlanService = async (id_plan: number, peso_final: number, calificacion: number, comentario: string) => {
     // Se actualiza el plan vencido con el peso del usuario al finalizar el plan,
-    // la calificación proporcionada y un comentario (opcional)
+    // la calificación proporcionada y un comentario (opcional). Luego, el estado
+    // del plan pasa a Inactivo (estado 3)
     const resultado = await prisma.plan.update({
         data: {
             peso_final: peso_final,
             calificacion: calificacion,
-            comentario: comentario
+            comentario: comentario,
+            estado: 3
         },
         where: {
             id_plan: id_plan,
