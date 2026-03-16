@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import {
-    obtenerMiPerfil,
-    obtenerPerfil,
+    actualizarPerfil,
     agregarPerfil,
-    actualizarPerfil
+    obtenerMiPerfil,
+    obtenerPerfil
 } from './perfilService';
 
+import { ErrorLog, registrarError } from '../../utils/errorHandler';
 import { CreatePerfilSchema } from './dto/createPerfilSchema';
 import { UpdatePerfilSchema } from './dto/updatePerfilSchema';
-import { ErrorLog, registrarError } from '../../utils/errorHandler';
 
 export async function miPerfil(req: Request, res: Response) {
     try {

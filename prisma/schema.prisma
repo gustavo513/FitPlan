@@ -180,12 +180,13 @@ model Plan {
   fecha                DateTime           @default(now())
   cant_comida          Int
   peso_inicial         Float
-  peso_final           Float
-  calificacion         Float
+  peso_final           Float?
+  calificacion         Float?
   comentario           String?
-  estado               Int
+  estado               Int?               @default(1)
   id_usuario           Int
   id_objetivo          Int
+  plan_estado          plan_estado?       @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_estado_fkey")
   objetivo             Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
   usuario              Usuario            @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
   ejercicios           Plan_Ejercicio[]
@@ -219,8 +220,6 @@ model Objetivo {
 model Ejercicio {
   id_ejercicio      Int              @id @default(autoincrement())
   descripcion       String           @unique
-  duracion          Int
-  peso              Float?
   id_tipo_ejercicio Int
   tipo_ejercicio    TipoEjercicio    @relation(fields: [id_tipo_ejercicio], references: [id_tipo_ejercicio])
   planes            Plan_Ejercicio[]
@@ -239,6 +238,8 @@ model TipoEjercicio {
 model Plan_Ejercicio {
   id_ejercicio Int
   id_plan      Int
+  duracion     Int
+  peso         Float?
   ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
   plan         Plan      @relation(fields: [id_plan], references: [id_plan])
 
@@ -258,7 +259,7 @@ model Ingrediente {
 model Plan_Ingrediente {
   id_ingrediente   Int
   id_plan          Int
-  comida           Int
+  comida           String       @db.VarChar
   medida           Float
   id_unidad_medida Int
   grasa            Float
@@ -300,7 +301,7 @@ model Suplemento {
 model UnidadMedida {
   id_unidad_medida Int                @id @default(autoincrement())
   descripcion      String             @unique
-  abreviatura      String
+  abreviatura      String             @unique(map: "uq_unidad_medida_abreviatura")
   plan_ingrediente Plan_Ingrediente[]
   plan_suplemento  Plan_Suplemento[]
 
@@ -342,6 +343,13 @@ model registro_error {
   message        String
   errors         String?
   fecha_registro DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+}
+
+model plan_estado {
+  id          Int     @id
+  descripcion String  @db.VarChar(50)
+  observacion String?
+  plan        Plan[]
 }
 
 enum genero {
