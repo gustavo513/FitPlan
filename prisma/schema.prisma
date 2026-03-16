@@ -240,7 +240,7 @@ model Plan_Ejercicio {
   id_plan      Int
   duracion     Int
   peso         Float?
-  ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
+  ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio], onDelete: Cascade)
   plan         Plan      @relation(fields: [id_plan], references: [id_plan])
 
   @@id([id_ejercicio, id_plan])
@@ -266,7 +266,7 @@ model Plan_Ingrediente {
   proteinas        Float
   carbohidratos    Float
   ingrediente      Ingrediente  @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
+  plan             Plan         @relation(fields: [id_plan], references: [id_plan], onDelete: Cascade)
   unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 
   @@id([id_ingrediente, id_plan])
@@ -281,7 +281,7 @@ model Plan_Suplemento {
   grasa            Float
   proteinas        Float
   carbohidratos    Float
-  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
+  plan             Plan         @relation(fields: [id_plan], references: [id_plan], onDelete: Cascade)
   suplemento       Suplemento   @relation(fields: [id_suplemento], references: [id_suplemento])
   unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 
@@ -308,20 +308,11 @@ model UnidadMedida {
   @@map("unidad_medida")
 }
 
-model Micronutriente {
-  id_micronutriente Int                          @id @default(autoincrement())
-  descripcion       String                       @unique
-  ingredientes      Ingrediente_Micronutriente[]
-  suplementos       Suplemento_Micronutriente[]
-
-  @@map("macronutriente")
-}
-
 model Ingrediente_Micronutriente {
   id_ingrediente    Int
   id_micronutriente Int
   ingrediente       Ingrediente    @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  micronutriente    Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  micronutriente    micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
 
   @@id([id_ingrediente, id_micronutriente])
   @@map("ingrediente_macronutriente")
@@ -330,7 +321,7 @@ model Ingrediente_Micronutriente {
 model Suplemento_Micronutriente {
   id_suplemento     Int
   id_micronutriente Int
-  micronutriente    Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  micronutriente    micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
   suplemento        Suplemento     @relation(fields: [id_suplemento], references: [id_suplemento])
 
   @@id([id_suplemento, id_micronutriente])
@@ -350,6 +341,13 @@ model plan_estado {
   descripcion String  @db.VarChar(50)
   observacion String?
   plan        Plan[]
+}
+
+model micronutriente {
+  id_micronutriente Int                          @id(map: "macronutriente_pkey") @default(autoincrement())
+  descripcion       String                       @unique(map: "macronutriente_descripcion_key")
+  ingredientes      Ingrediente_Micronutriente[]
+  suplementos       Suplemento_Micronutriente[]
 }
 
 enum genero {

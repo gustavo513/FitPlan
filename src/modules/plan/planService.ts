@@ -22,6 +22,29 @@ function formatearAfecciones(afecciones: string[]): string {
     return resultado;
 }
 
+function formatearPlan(plan: any) {
+    const planFormateado = {
+        'id': plan.id_plan,
+        'fecha': plan.fecha,
+        'comidas': plan.ingredientes.map((e: any) => {
+            return {
+                'comida': e.comida,
+                'id_ingrediente': e.id_ingrediente,
+                'descripcion': e.ingrediente.descripcion,
+                'medida': e.medida,
+                'unidad_medida': e.unidad_medida.abreviatura,
+                'grasa': e.grasa,
+                'proteinas': e.proteinas,
+                'carbohidratos': e.carbohidratos,
+                'micronutrientes': e.micronutrientes
+            }
+        }),
+
+    }
+
+    return planFormateado;
+}
+
 export const generarPlanService = async(data: CreatePlanSchema, id_usuario: number) => {
 
     // Obtener perfil del usuario, preferencia alimentaria y afecciones
@@ -70,9 +93,6 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
         // Resultado del plan generado por la API
         const resultado = await chatgptReq(message);
 
-        let comidas;
-        let ejercicios;
-        let suplementos;
         if(resultado != null){
             // Se genera el registro de cabecera del plan
             const r = await prisma.$transaction(async (tx) => {
@@ -130,6 +150,38 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
                         }
                    });
 
+                   // Registrar cada micronutriente y asociarlo al ingrediente. Actualizar si ya existe
+                   for(const m of item.micronutrientes){
+                        const micronutriente = await tx.micronutriente.upsert({
+                                create: {
+                                    descripcion: m
+                                },
+                                update: {
+                                    descripcion: m
+                                },
+                                where: {
+                                    descripcion: m
+                                }
+                        });
+
+                        await tx.ingrediente_Micronutriente.upsert({
+                            create: {
+                                id_ingrediente: ingrediente.id_ingrediente,
+                                id_micronutriente: micronutriente.id_micronutriente
+                            },
+                            update: {
+                                id_ingrediente: ingrediente.id_ingrediente,
+                                id_micronutriente: micronutriente.id_micronutriente
+                            },
+                            where: {
+                                id_ingrediente_id_micronutriente: {
+                                    id_ingrediente: ingrediente.id_ingrediente,
+                                    id_micronutriente: micronutriente.id_micronutriente                                   
+                                }
+                            }
+                        });
+                  }
+
                 }
 
                 // Iterar sobre los suplementos con sus micro y macronutrientes
@@ -173,6 +225,38 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
                             carbohidratos: item.carbohidratos
                         }
                    });
+
+                   // Registrar cada micronutriente y asociarlo al suplemento. Actualizar si ya existe
+                   for(const m of item.micronutrientes){
+                        const micronutriente = await tx.micronutriente.upsert({
+                            create: {
+                                descripcion: m
+                            },
+                            update: {
+                                descripcion: m
+                            },
+                            where: {
+                                descripcion: m
+                            }
+                        });
+
+                        await tx.suplemento_Micronutriente.upsert({
+                            create: {
+                                id_suplemento: suplemento.id_suplemento,
+                                id_micronutriente: micronutriente.id_micronutriente
+                            },
+                            update: {
+                                id_suplemento: suplemento.id_suplemento,
+                                id_micronutriente: micronutriente.id_micronutriente
+                            },
+                            where: {
+                                id_suplemento_id_micronutriente: {
+                                    id_suplemento: suplemento.id_suplemento,
+                                    id_micronutriente: micronutriente.id_micronutriente                                   
+                                }
+                            }
+                        });
+                   }
                 }
 
                 // Iterar sobre los ejercicios
@@ -239,11 +323,12 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 select: {
                     id_ingrediente: true,
                     ingrediente: true,
+                    medida: true,
                     unidad_medida: true,
                     grasa: true,
                     proteinas: true,
-                    carbohidratos: true
-                }
+                    carbohidratos: true,
+                },
             },
             suplementos: {
                 select: {
@@ -261,6 +346,9 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
     });
 
     if(plan != null){
+        /* const planFormateado = formatearPlan(plan[0]);
+        console.log(planFormateado);
+        return planFormateado;*/
         return plan;
     }
     else{
