@@ -1,9 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import nodeCron from "node-cron";
 import chatgptReq from "../../config/openai-configure";
 import { calcularEdad } from "../../utils/calcularEdad";
 import { calcularMetabolismoBasal } from "../../utils/calcularMetabolismoBasal";
 import { NotFoundError } from "../../utils/errors/notFoundError";
 import { CreatePlanSchema } from "./dto/createPlanSchema";
+import { IngredienteDto } from "./dto/ingredienteDto";
+import { PlanDto } from "./dto/planDto";
+import { SuplementoDto } from "./dto/suplementoDto";
 
 const prisma = new PrismaClient();
 
@@ -77,6 +81,7 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
                 const plan = await tx.plan.create({
                     data: {
                         fecha: (new Date()).toISOString(),
+                        fecha_registro: (new Date()).toISOString(),
                         cant_comida: data.cantidad_comidas,
                         peso_inicial: perfil?.peso,
                         id_usuario: id_usuario,
@@ -339,7 +344,7 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
 
     if(plan != null){
         // Obtener los micronutrientes de los ingredientes
-        const ingredientes = [];
+        const ingredientes: IngredienteDto[] = [];
         for(const ingrediente of plan.ingredientes){
             const micronutrientes = await prisma.ingrediente_Micronutriente.findMany({
                 where: {
@@ -354,16 +359,23 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 }
             });
 
-            const resultado = {
-                ...ingrediente,
-                'micronutrientes': micronutrientes.map((e) => e.micronutriente.descripcion)
-            }
+            const resultado: IngredienteDto = new IngredienteDto(
+                micronutrientes.map((e) => e.micronutriente.descripcion),
+                ingrediente.comida,
+                ingrediente.ingrediente.descripcion,
+                ingrediente.medida,
+                ingrediente.proteinas,
+                ingrediente.carbohidratos,
+                ingrediente.id_ingrediente,
+                ingrediente.grasa,
+                ingrediente.unidad_medida,
+            );
 
             ingredientes.push(resultado);
         }
 
         // Obtener los micronutrientes de los suplementos
-        const suplementos = [];
+        const suplementos: SuplementoDto[] = [];
         for(const suplemento of plan.suplementos){
             const micronutrientes = await prisma.suplemento_Micronutriente.findMany({
                 where: {
@@ -378,28 +390,31 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 }
             }); 
 
-            const resultado = {
-                ...suplemento,
-                'micronutriente': micronutrientes.map((e) => e.micronutriente.descripcion)
-            }
+            const resultado: SuplementoDto = new SuplementoDto(
+                micronutrientes.map((e) => e.micronutriente.descripcion),
+                suplemento.medida,
+                suplemento.suplemento.descripcion,
+                suplemento.unidad_medida,
+                suplemento.id_suplemento
+            );
 
             suplementos.push(resultado);
         }
 
-        const planFormateado = {
-            'id_plan': plan.id_plan,
-            'objetivo': plan.objetivo.descripcion,
-            'preferencia_alimentaria': plan.preferencia_alimentaria.descripcion,
-            'fecha': plan.fecha,
-            'cantidad_comida': plan.cant_comida,
-            'peso_inicial': plan.peso_inicial,
-            'peso_final': plan.peso_final,
-            'calificacion': plan.calificacion,
-            'comentario': plan.comentario,
-            'ingredientes': ingredientes,
-            'suplementos': suplementos,
-            'ejercicios': plan.ejercicios
-        }
+        const planFormateado: PlanDto = new PlanDto(
+                plan.id_plan,
+                plan.objetivo.descripcion,
+                plan.preferencia_alimentaria.descripcion,
+                plan.fecha,
+                plan.cant_comida,
+                plan.peso_inicial,
+                ingredientes,
+                suplementos,
+                plan.ejercicios,
+                plan.peso_final?? undefined,
+                plan.calificacion?? undefined,
+                plan.comentario?? undefined,
+        );
 
         return planFormateado;
     }
@@ -427,3 +442,26 @@ export const actualizarPlanService = async (id_plan: number, peso_final: number,
 
     return resultado;
 }
+
+// Función que se ejecuta todos los días a las 00:00:00 hs
+// para verificar y actualizar los planes vencidos
+nodeCron.schedule('0 0 0 * * *', async () => {
+    console.log('Iniciando verificación de planes vencidos...');
+    
+    // Fecha actual menos 30 días para actualizar el 
+    // estado de los planes a vencidos. 
+    let fecha = new Date();
+
+    fecha.setDate(fecha.getDate() - 30);
+
+    const fechaVencimiento = fecha.toISOString().slice(0, 10);
+    
+    await prisma.plan.updateMany({
+        data: {
+            estado: 2
+        },
+        where: {
+            fecha: new Date(fechaVencimiento)
+        }
+    });
+});

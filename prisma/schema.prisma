@@ -178,7 +178,7 @@ model Perfil_Afeccion {
 
 model Plan {
   id_plan                    Int                @id @default(autoincrement())
-  fecha                      DateTime           @default(now())
+  fecha                      DateTime           @default(dbgenerated("CURRENT_DATE")) @db.Date
   cant_comida                Int
   peso_inicial               Float
   peso_final                 Float?
@@ -188,6 +188,7 @@ model Plan {
   id_usuario                 Int
   id_objetivo                Int
   id_preferencia_alimentaria Int
+  fecha_registro             DateTime?          @db.Timestamp(6)
   plan_estado                plan_estado?       @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_estado_fkey")
   objetivo                   Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
   preferencia_alimentaria    PrefAlim           @relation(fields: [id_preferencia_alimentaria], references: [id_pref_alim], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_pref_alimentaria_fkey")
