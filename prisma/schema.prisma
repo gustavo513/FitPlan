@@ -108,6 +108,7 @@ model PrefAlim {
   id_pref_alim Int               @id @default(autoincrement())
   descripcion  String
   perfil       Perfil_PrefAlim[]
+  plan         Plan[]
 
   @@map("preferencia_alimentaria")
 }
@@ -176,23 +177,25 @@ model Perfil_Afeccion {
 }
 
 model Plan {
-  id_plan              Int                @id @default(autoincrement())
-  fecha                DateTime           @default(now())
-  cant_comida          Int
-  peso_inicial         Float
-  peso_final           Float?
-  calificacion         Int?
-  comentario           String?
-  estado               Int?               @default(1)
-  id_usuario           Int
-  id_objetivo          Int
-  plan_estado          plan_estado?       @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_estado_fkey")
-  objetivo             Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
-  usuario              Usuario            @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
-  ejercicios           Plan_Ejercicio[]
-  ingredientes         Plan_Ingrediente[]
-  suplementos          Plan_Suplemento[]
-  usuariosSupervisores Supervision_Plan[]
+  id_plan                    Int                @id @default(autoincrement())
+  fecha                      DateTime           @default(now())
+  cant_comida                Int
+  peso_inicial               Float
+  peso_final                 Float?
+  calificacion               Int?
+  comentario                 String?
+  estado                     Int?               @default(1)
+  id_usuario                 Int
+  id_objetivo                Int
+  id_preferencia_alimentaria Int
+  plan_estado                plan_estado?       @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_estado_fkey")
+  objetivo                   Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
+  preferencia_alimentaria    PrefAlim           @relation(fields: [id_preferencia_alimentaria], references: [id_pref_alim], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_pref_alimentaria_fkey")
+  usuario                    Usuario            @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
+  ejercicios                 Plan_Ejercicio[]
+  ingredientes               Plan_Ingrediente[]
+  suplementos                Plan_Suplemento[]
+  usuariosSupervisores       Supervision_Plan[]
 
   @@map("plan")
 }
@@ -240,7 +243,7 @@ model Plan_Ejercicio {
   id_plan      Int
   duracion     Int
   peso         Float?
-  ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio], onDelete: Cascade)
+  ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
   plan         Plan      @relation(fields: [id_plan], references: [id_plan])
 
   @@id([id_ejercicio, id_plan])
@@ -266,7 +269,7 @@ model Plan_Ingrediente {
   proteinas        Float
   carbohidratos    Float
   ingrediente      Ingrediente  @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  plan             Plan         @relation(fields: [id_plan], references: [id_plan], onDelete: Cascade)
+  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
   unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 
   @@id([id_ingrediente, id_plan])
@@ -281,7 +284,7 @@ model Plan_Suplemento {
   grasa            Float
   proteinas        Float
   carbohidratos    Float
-  plan             Plan         @relation(fields: [id_plan], references: [id_plan], onDelete: Cascade)
+  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
   suplemento       Suplemento   @relation(fields: [id_suplemento], references: [id_suplemento])
   unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 

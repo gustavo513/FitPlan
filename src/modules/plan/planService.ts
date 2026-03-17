@@ -22,29 +22,6 @@ function formatearAfecciones(afecciones: string[]): string {
     return resultado;
 }
 
-function formatearPlan(plan: any) {
-    const planFormateado = {
-        'id': plan.id_plan,
-        'fecha': plan.fecha,
-        'comidas': plan.ingredientes.map((e: any) => {
-            return {
-                'comida': e.comida,
-                'id_ingrediente': e.id_ingrediente,
-                'descripcion': e.ingrediente.descripcion,
-                'medida': e.medida,
-                'unidad_medida': e.unidad_medida.abreviatura,
-                'grasa': e.grasa,
-                'proteinas': e.proteinas,
-                'carbohidratos': e.carbohidratos,
-                'micronutrientes': e.micronutrientes
-            }
-        }),
-
-    }
-
-    return planFormateado;
-}
-
 export const generarPlanService = async(data: CreatePlanSchema, id_usuario: number) => {
 
     // Obtener perfil del usuario, preferencia alimentaria y afecciones
@@ -60,6 +37,7 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
             },
             pref_alim: {
                 select: {
+                    id_pref_alim: true,
                     prefalim: true
                 }
             }
@@ -88,7 +66,7 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
         persona de ${edad} años de edad, género ${sexo}, altura ${perfil.altura} metros y peso ${perfil.peso} kg. Generar un 
         plan de ejercicios de tipo ${tipo_ejercicio[0].descripcion}, entre sus afecciones se incluye: ${afeccionesFormateadas}. Su metabolismo basal es 
         ${metabolismoBasal} calorías. Su objetivo es ${objetivo[0].descripcion}. Se deben incluir detalles de micronutrientes y 
-        macronutrientes.`;
+        macronutrientes. Esta persona vive en Paraguay`;
 
         // Resultado del plan generado por la API
         const resultado = await chatgptReq(message);
@@ -102,7 +80,8 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
                         cant_comida: data.cantidad_comidas,
                         peso_inicial: perfil?.peso,
                         id_usuario: id_usuario,
-                        id_objetivo: data.id_objetivo
+                        id_objetivo: data.id_objetivo,
+                        id_preferencia_alimentaria: perfil?.pref_alim[0].id_pref_alim
                     }
                 });
                 
@@ -298,7 +277,7 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
 export const obtenerPlanActualService = async (id_usuario: number) => {
 
     // Obtener el plan activo, o vencido para generar nuevo plan
-    const plan = await prisma.plan.findMany({
+    const plan = await prisma.plan.findFirst({
         where: {
             OR: [
                 {
@@ -312,6 +291,18 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
             ]
         },
         include: {
+            objetivo: {
+                select: {
+                    id_objetivo: true,
+                    descripcion: true
+                }
+            },
+            preferencia_alimentaria: {
+                select: {
+                    id_pref_alim: true,
+                    descripcion: true
+                }
+            },
             ejercicios: {
                 select: {
                     ejercicio: true,
@@ -321,6 +312,7 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
             },
             ingredientes: {
                 select: {
+                    comida: true,
                     id_ingrediente: true,
                     ingrediente: true,
                     medida: true,
@@ -346,10 +338,70 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
     });
 
     if(plan != null){
-        /* const planFormateado = formatearPlan(plan[0]);
-        console.log(planFormateado);
-        return planFormateado;*/
-        return plan;
+        // Obtener los micronutrientes de los ingredientes
+        const ingredientes = [];
+        for(const ingrediente of plan.ingredientes){
+            const micronutrientes = await prisma.ingrediente_Micronutriente.findMany({
+                where: {
+                    id_ingrediente: ingrediente.id_ingrediente
+                },
+                include: {
+                    micronutriente: {
+                        select: {
+                            descripcion: true
+                        }
+                    }
+                }
+            });
+
+            const resultado = {
+                ...ingrediente,
+                'micronutrientes': micronutrientes.map((e) => e.micronutriente.descripcion)
+            }
+
+            ingredientes.push(resultado);
+        }
+
+        // Obtener los micronutrientes de los suplementos
+        const suplementos = [];
+        for(const suplemento of plan.suplementos){
+            const micronutrientes = await prisma.suplemento_Micronutriente.findMany({
+                where: {
+                    id_suplemento: suplemento.id_suplemento
+                },
+                include: {
+                    micronutriente: {
+                        select: {
+                            descripcion: true
+                        }
+                    }
+                }
+            }); 
+
+            const resultado = {
+                ...suplemento,
+                'micronutriente': micronutrientes.map((e) => e.micronutriente.descripcion)
+            }
+
+            suplementos.push(resultado);
+        }
+
+        const planFormateado = {
+            'id_plan': plan.id_plan,
+            'objetivo': plan.objetivo.descripcion,
+            'preferencia_alimentaria': plan.preferencia_alimentaria.descripcion,
+            'fecha': plan.fecha,
+            'cantidad_comida': plan.cant_comida,
+            'peso_inicial': plan.peso_inicial,
+            'peso_final': plan.peso_final,
+            'calificacion': plan.calificacion,
+            'comentario': plan.comentario,
+            'ingredientes': ingredientes,
+            'suplementos': suplementos,
+            'ejercicios': plan.ejercicios
+        }
+
+        return planFormateado;
     }
     else{
         throw new NotFoundError('No se encontró ningún plan vigente');

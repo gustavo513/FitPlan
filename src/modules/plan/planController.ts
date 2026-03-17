@@ -29,7 +29,7 @@ export const obtenerPlanActualController = async (req: Request, res: Response) =
     }
     catch(error: any){
         if(error.statusCode != null){
-            return res.status(error.statusCode).send(error);
+            return res.status(error.statusCode).json({message: error.message});
         }
         return res.status(500).json(error);
     }
