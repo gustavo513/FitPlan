@@ -1,35 +1,37 @@
-import { UnidadMedidaDto } from "./unidadMedidaDto";
 
 export class IngredienteDto {
-        micronutrientes: string[];
         comida: string;
+        id_ingrediente: number;
         descripcion: string;
         medida: number;
+        unidad_medida_descripcion: string;
+        unidad_medida_abreviatura: string;
         proteinas: number;
         carbohidratos: number;
-        id_ingrediente: number;
         grasa: number;
-        unidad_medida: UnidadMedidaDto; // desestructurar los valores y eliminar UnidadMedidaDto para compactar más el json
+        micronutrientes: string[];
 
         constructor(
-            micronutrientes: string[],
             comida: string,
+            id_ingrediente: number,
             descripcion: string,
             medida: number,
+            unidad_medida_descripcion: string,
+            unidad_medida_abreviatura: string,
             proteinas: number,
             carbohidratos: number,
-            id_ingrediente: number,
             grasa: number,
-            unidad_medida: UnidadMedidaDto,            
+            micronutrientes: string[],         
         ){
-            this.micronutrientes = micronutrientes,
             this.comida = comida,
+            this.id_ingrediente = id_ingrediente,
             this.descripcion = descripcion,
             this.medida = medida,
+            this.unidad_medida_descripcion = unidad_medida_descripcion, 
+            this.unidad_medida_abreviatura = unidad_medida_abreviatura,
             this.proteinas = proteinas,
             this.carbohidratos = carbohidratos,
-            this.id_ingrediente = id_ingrediente,
             this.grasa = grasa,
-            this.unidad_medida = unidad_medida
+            this.micronutrientes = micronutrientes
         }
 }

@@ -5,6 +5,7 @@ import { calcularEdad } from "../../utils/calcularEdad";
 import { calcularMetabolismoBasal } from "../../utils/calcularMetabolismoBasal";
 import { NotFoundError } from "../../utils/errors/notFoundError";
 import { CreatePlanSchema } from "./dto/createPlanSchema";
+import { EjercicioDto } from "./dto/ejercicioDto";
 import { IngredienteDto } from "./dto/ingredienteDto";
 import { PlanDto } from "./dto/planDto";
 import { SuplementoDto } from "./dto/suplementoDto";
@@ -360,15 +361,16 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
             });
 
             const resultado: IngredienteDto = new IngredienteDto(
-                micronutrientes.map((e) => e.micronutriente.descripcion),
                 ingrediente.comida,
+                ingrediente.id_ingrediente,                
                 ingrediente.ingrediente.descripcion,
                 ingrediente.medida,
+                ingrediente.unidad_medida.descripcion,
+                ingrediente.unidad_medida.abreviatura,
                 ingrediente.proteinas,
                 ingrediente.carbohidratos,
-                ingrediente.id_ingrediente,
                 ingrediente.grasa,
-                ingrediente.unidad_medida,
+                micronutrientes.map((e) => e.micronutriente.descripcion),
             );
 
             ingredientes.push(resultado);
@@ -391,14 +393,28 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
             }); 
 
             const resultado: SuplementoDto = new SuplementoDto(
-                micronutrientes.map((e) => e.micronutriente.descripcion),
-                suplemento.medida,
+                suplemento.id_suplemento,
                 suplemento.suplemento.descripcion,
-                suplemento.unidad_medida,
-                suplemento.id_suplemento
+                suplemento.medida,
+                suplemento.unidad_medida.descripcion,
+                suplemento.unidad_medida.abreviatura,
+                micronutrientes.map((e) => e.micronutriente.descripcion)
             );
 
             suplementos.push(resultado);
+        }
+
+        // Formatear ejercicios
+        const ejercicios: EjercicioDto[] = [];
+        for(const ejercicio of plan.ejercicios){
+            const e = new EjercicioDto(
+                ejercicio.ejercicio.id_ejercicio,
+                ejercicio.ejercicio.descripcion,
+                ejercicio.duracion,
+                ejercicio.peso?? undefined
+            );
+
+            ejercicios.push(e);
         }
 
         const planFormateado: PlanDto = new PlanDto(
@@ -410,7 +426,7 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 plan.peso_inicial,
                 ingredientes,
                 suplementos,
-                plan.ejercicios,
+                ejercicios,
                 plan.peso_final?? undefined,
                 plan.calificacion?? undefined,
                 plan.comentario?? undefined,

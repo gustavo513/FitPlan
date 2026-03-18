@@ -1,23 +1,25 @@
-import { UnidadMedida } from "@prisma/client";
 
 export class SuplementoDto {
-    micronutriente: string[];
-    medida: number;
-    descripcion: string;
-    unidad_medida: UnidadMedida;
     id_suplemento: number;
+    descripcion: string;    
+    medida: number;
+    unidad_medida_descripcion: string;
+    unidad_medida_abreviatura: string;
+    micronutriente: string[];    
 
     constructor(
-        micronutriente: string[],
-        medida: number,
-        descripcion: string,
-        unidad_medida: UnidadMedida,
         id_suplemento: number,
+        descripcion: string,        
+        medida: number,
+        unidad_medida_descripcion: string,
+        unidad_medida_abreviatura: string,
+        micronutriente: string[],
     ){
-        this.micronutriente = micronutriente,
-        this.medida = medida,
+        this.id_suplemento = id_suplemento,
         this.descripcion = descripcion,
-        this.unidad_medida = unidad_medida,
-        this.id_suplemento = id_suplemento
+        this.medida = medida,
+        this.unidad_medida_descripcion = unidad_medida_descripcion,
+        this.unidad_medida_abreviatura = unidad_medida_abreviatura,
+        this.micronutriente = micronutriente
     }
 }
