@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from "express";
+import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -18,8 +18,11 @@ export const autorizacion = (roles: string[]) => {
 
         res.locals.role = usuario?.rol.descripcion;
 
-        if(!usuario || !roles.includes(usuario.rol.descripcion)){
-            return res.status(403).json({message: 'No tiene permisos suficientes'});
+        if (!usuario || !roles.includes(usuario.rol.descripcion)) {
+            return res.status(401).json({ message: 'No tiene permisos suficientes' });
+        }
+        else if (usuario.estado == 0) {
+            return res.status(401).json({ message: 'Esta cuenta no está activa' });
         }
 
         next();

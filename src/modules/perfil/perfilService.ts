@@ -1,4 +1,7 @@
-import {genero, PrismaClient} from '@prisma/client';
+import { genero, PrismaClient } from '@prisma/client';
+import { UpdatePerfilSchema } from './dto/updatePerfilSchema';
+import { afeccionSchema } from '../afeccion/afeccionSchema';
+import { CreatePerfilSchema } from './dto/createPerfilSchema';
 
 const prisma = new PrismaClient();
 
@@ -8,33 +11,22 @@ export async function obtenerMiPerfil(idUsuario: number) {
             id_usuario: idUsuario
         },
         include: {
-            ciudad: {
-                select: {
-                    nombre: true,
-                    region: {
-                        select: {
-                            nombre: true,
-                            pais: {
-                                select: {
-                                    nombre: true
-                                }
-                            }
-                        }
-                    }
-                }
-            },
             pref_alim: {
                 select: {
-                    estado: true,
-                    prefalim: true
+                    prefalim: true,
+                },
+                where: {
+                    estado: 1
                 }
             },
             afeccion: {
                 select: {
-                    estado: true,
                     afeccion: true
+                },
+                where: {
+                    estado: 1
                 }
-            }
+            },
         }
     });
 }
@@ -155,49 +147,200 @@ export async function obtenerPerfil(
 };
 
 export async function agregarPerfil(
-    data: {
-        nombre: string,
-        apellido: string,
-        genero: string,
-        fechaNacimiento: string,
-        altura: number,
-        peso: number,
-        id_ciudad?: number | undefined
-    },
-    id_usuario: string
-){
-    const perfil = await prisma.perfil.create({
-        data: {
-            ...data,
-            genero: data.genero as genero,
-            id_usuario: parseInt(id_usuario)
+    perfil_dto: CreatePerfilSchema,
+    id_usuario: number
+) {
+    const resultado = await prisma.$transaction(async (tx) => {
+        const perfil = await prisma.perfil.create({
+            data: {
+                nombre: perfil_dto.nombre,
+                apellido: perfil_dto.apellido,
+                genero: perfil_dto.genero as genero,
+                fechaNacimiento: perfil_dto.fechaNacimiento,
+                altura: perfil_dto.altura,
+                peso: perfil_dto.peso,
+                id_usuario: id_usuario
+            }
+        });
+
+        const afecciones: any[] = [];
+        const preferencias: any[] = [];
+
+        if (perfil != null) {
+            if (perfil_dto.afecciones.length > 0) {
+                for (const item of perfil_dto.afecciones) {
+                    const afeccion = await tx.perfil_Afeccion.create({
+                        data: {
+                            id_perfil: perfil.id_perfil,
+                            id_afeccion: item.id,
+                            estado: 1
+                        }
+                    });
+
+                    afecciones.push(afeccion);
+                }
+            }
+
+            if (perfil_dto.preferencias_alimentarias.length > 0) {
+                for (const item of perfil_dto.preferencias_alimentarias) {
+                    const preferencia = await tx.perfil_PrefAlim.create({
+                        data: {
+                            id_perfil: perfil.id_perfil,
+                            id_pref_alim: item.id,
+                            estado: 1
+                        }
+                    });
+
+                    preferencias.push(preferencia);
+                }
+            }
+        }
+
+        return {
+            "perfil": perfil,
+            "afecciones": afecciones,
+            "preferencias_alimentarias": preferencias
         }
     });
 
-    return perfil;
+    return resultado;
 }
 
 export async function actualizarPerfil(
-    data: {
-        nombre: string,
-        apellido: string,
-        genero: string,
-        fechaNacimiento: string,
-        altura: number,
-        peso: number,
-        id_ciudad?: number | undefined
-    },
+    perfil_dto: UpdatePerfilSchema,
     id_usuario: number
-){
-    const perfil = await prisma.perfil.update({
-        where: {
-            id_usuario: id_usuario
-        },
-        data: {
-            ...data,
-            genero: data.genero as genero,
+) {
+
+    const resultado = await prisma.$transaction(async (tx) => {
+        const perfil = await tx.perfil.update({
+            where: {
+                id_usuario: id_usuario
+            },
+            data: {
+                nombre: perfil_dto.nombre,
+                apellido: perfil_dto.apellido,
+                genero: perfil_dto.genero as genero,
+                fechaNacimiento: perfil_dto.fechaNacimiento,
+                altura: perfil_dto.altura,
+                peso: perfil_dto.peso,
+            }
+        });
+
+        const afecciones = [];
+        const preferencias = [];
+
+        if (perfil != null) {
+            // se activan todas las afecciones recibidas
+            if (perfil_dto.afecciones != null && perfil_dto.afecciones?.length > 0) {
+                for (const item of perfil_dto.afecciones) {
+                    const afeccion = await tx.perfil_Afeccion.upsert({
+                        where: {
+                            id_perfil_id_afeccion: {
+                                id_perfil: perfil.id_perfil,
+                                id_afeccion: item.id
+                            }
+                        },
+                        update: {
+                            estado: 1
+                        },
+                        create: {
+                            id_perfil: perfil.id_perfil,
+                            id_afeccion: item.id,
+                            estado: 1
+                        }
+                    });
+
+                    afecciones.push(afeccion);
+                }
+
+                // Identificador de afecciones recibidas
+                const activos = perfil_dto.afecciones.map((item) => item.id);
+
+                // Se desactivan las afecciones no recibidas
+                await tx.perfil_Afeccion.updateMany({
+                    where: {
+                        AND: [
+                            {
+                                id_afeccion: {
+                                    notIn: activos
+                                }
+                            },
+                            {
+                                id_perfil: perfil.id_perfil
+                            }
+                        ]
+                    },
+                    data: {
+                        estado: 0
+                    }
+                });
+            }
+            else if (perfil_dto.afecciones?.length == 0) {
+                await prisma.perfil_Afeccion.updateMany({
+                    where: {
+                        id_perfil: perfil!.id_perfil
+                    },
+                    data: {
+                        estado: 0
+                    }
+                });
+            }
+
+            if (perfil_dto.preferencias_alimentarias != null && perfil_dto.preferencias_alimentarias.length > 0) {
+                // Se activan todas las preferencias alimentarias recibidas
+                for (const item of perfil_dto.preferencias_alimentarias) {
+                    const preferencia = await tx.perfil_PrefAlim.upsert({
+                        where: {
+                            id_perfil_id_pref_alim: {
+                                id_perfil: perfil.id_perfil,
+                                id_pref_alim: item.id
+                            }
+                        },
+                        update: {
+                            estado: 1
+                        },
+                        create: {
+                            id_perfil: perfil.id_perfil,
+                            id_pref_alim: item.id,
+                            estado: 1
+                        }
+                    });
+
+                    preferencias.push(preferencia);
+                }
+
+                const preferenciasActivas = perfil_dto.preferencias_alimentarias.map((item) => item.id);
+
+                // Se desactivan las preferencias alimentarias no recibidas
+                await tx.perfil_PrefAlim.updateMany({
+                    where: {
+                        AND: [
+                            {
+                                id_pref_alim: {
+                                    notIn: preferenciasActivas
+                                }
+                            },
+                            {
+                                id_perfil: perfil.id_perfil
+                            }
+                        ]
+                    },
+                    data: {
+                        estado: 0
+                    }
+                });
+            }
         }
+
+        return {
+            ...perfil,
+            "fecha_nacimiento": perfil.fechaNacimiento,
+            "afecciones": afecciones,
+            "preferencias": preferencias
+        }
+
     });
 
-    return perfil;
+    return resultado;
+
 }

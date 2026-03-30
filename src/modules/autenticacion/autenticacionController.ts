@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import {
     registroUsuario,
     loginUsuario,
@@ -11,38 +11,40 @@ import {
 } from "./autenticacionService";
 
 import {
-    RegistroSchemaBody, 
-    LoginSchemaBody, 
+    RegistroSchemaBody,
+    LoginSchemaBody,
     CorreoRequeridoSchemaBody,
     ContrasenaRequeridaSchemaBody,
     TokenRequeridoSchemaParams
 } from "./autenticacionSchema";
+import { ErrorLog } from "../../utils/errorHandler";
 
-export async function registro(req: Request<{}, {}, RegistroSchemaBody>, res: Response){
-    
-    const {email, nombre_usuario, contrasena} = req.body;
+export async function registro(req: Request<{}, {}, RegistroSchemaBody>, res: Response) {
 
-    try{
+    const { email, nombre_usuario, contrasena } = req.body;
+
+    try {
         const token = await registroUsuario(email, nombre_usuario, contrasena);
 
-        res.status(200).send({token});
+        res.status(200).send({ token });
     }
-    catch(error: any){
-        res.status(400).send({message: 'Registro fallido', error: error.message});
+    catch (error: any) {
+        res.status(400).send({ message: 'Registro fallido', error: error.message });
     }
 };
 
-export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response){
+export async function login(req: Request<{}, {}, LoginSchemaBody>, res: Response) {
 
-    const {nombre_usuario, contrasena} = req.body;
+    const { nombre_usuario, contrasena } = req.body;
 
-    try{
+    try {
         const token = await loginUsuario(nombre_usuario, contrasena);
 
-        res.status(200).send({token});
+        res.status(200).send({ token });
     }
-    catch(error: any){
-        res.status(400).send({ message: 'Inicio de sesión fallido', error: error.message});
+    catch (error: any) {
+        console.log(error);
+        res.status(500).send({ message: 'Inicio de sesión fallido', error: error.message });
     }
 }
 
@@ -63,7 +65,7 @@ export async function validarCorreo(req: Request<{}, {}, CorreoRequeridoSchemaBo
 }
 
 export async function validarNombreUsuario(req: Request, res: Response) {
-    try{
+    try {
 
         const nombre_usuario = req.body.nombre_usuario;
 
@@ -100,7 +102,7 @@ export async function confirmarCorreo(req: Request, res: Response) {
         return res.status(200).send('El correo fue verificado con éxito');
     }
     catch (error: any) {
-        return res.status(404).send({ message: 'No se pudo confirmar el correo propocionado', error: error.message});
+        return res.status(404).send({ message: 'No se pudo confirmar el correo propocionado', error: error.message });
     }
 }
 
