@@ -1,5 +1,5 @@
 
-export class IngredienteDto {
+export class ComposicionIngredienteDto {
         comida: string;
         id_ingrediente: number;
         descripcion: string;
@@ -10,6 +10,9 @@ export class IngredienteDto {
         carbohidratos: number;
         grasa: number;
         micronutrientes: string[];
+        id_sustituto?: number | undefined;
+        sustituto?: string | undefined;
+        medida_sustituto?: number | undefined;
 
         constructor(
             comida: string,
@@ -21,7 +24,10 @@ export class IngredienteDto {
             proteinas: number,
             carbohidratos: number,
             grasa: number,
-            micronutrientes: string[],         
+            micronutrientes: string[], 
+            id_sustituto: number | undefined,
+            sustituto: string | undefined,
+            medida_sustituto: number | undefined,        
         ){
             this.comida = comida,
             this.id_ingrediente = id_ingrediente,
@@ -32,6 +38,9 @@ export class IngredienteDto {
             this.proteinas = proteinas,
             this.carbohidratos = carbohidratos,
             this.grasa = grasa,
-            this.micronutrientes = micronutrientes
+            this.micronutrientes = micronutrientes,
+            this.id_sustituto = id_sustituto,
+            this.sustituto = sustituto,
+            this.medida_sustituto = medida_sustituto
         }
 }

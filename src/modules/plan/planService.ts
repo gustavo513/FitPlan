@@ -1,14 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import nodeCron from "node-cron";
 import chatgptReq from "../../config/openai-configure";
+import { ComposicionIngredienteDto } from "../../shared/dto/composicionIngredienteDto";
+import { ComposicionSuplementoDto } from "../../shared/dto/composicionSuplementoDto";
+import { EjercicioDto } from "../../shared/dto/ejercicioDto";
+import { Plan } from "../../types/openai.types";
 import { calcularEdad } from "../../utils/calcularEdad";
 import { calcularMetabolismoBasal } from "../../utils/calcularMetabolismoBasal";
 import { NotFoundError } from "../../utils/errors/notFoundError";
 import { CreatePlanSchema } from "./dto/createPlanSchema";
-import { EjercicioDto } from "./dto/ejercicioDto";
-import { IngredienteDto } from "./dto/ingredienteDto";
 import { PlanDto } from "./dto/planDto";
-import { SuplementoDto } from "./dto/suplementoDto";
 
 const prisma = new PrismaClient();
 
@@ -67,14 +68,114 @@ export const generarPlanService = async(data: CreatePlanSchema, id_usuario: numb
 
         const metabolismoBasal: number = calcularMetabolismoBasal(perfil?.genero, perfil?.peso, perfil?.altura, edad);
 
-        const message = `Generar un plan de dieta ${preferencia_aliementaria} de ${data.cantidad_comidas} comidas al día para una 
+        /*const message = `Generar un plan de dieta ${preferencia_aliementaria} de ${data.cantidad_comidas} comidas al día para una 
         persona de ${edad} años de edad, género ${sexo}, altura ${perfil.altura} metros y peso ${perfil.peso} kg. Generar un 
         plan de ejercicios de tipo ${tipo_ejercicio[0].descripcion}, entre sus afecciones se incluye: ${afeccionesFormateadas}. Su metabolismo basal es 
         ${metabolismoBasal} calorías. Su objetivo es ${objetivo[0].descripcion}. Se deben incluir detalles de micronutrientes y 
-        macronutrientes. Esta persona vive en Paraguay`;
+        macronutrientes. Esta persona vive en Paraguay`;*/
 
+        const message = `
+                OBJETIVO:
+                Generar un plan completamente personalizado de nutrición y entrenamiento basado en los datos proporcionados.
+
+                INPUT:
+                - Preferencia alimentaria: ${preferencia_aliementaria}
+                - Cantidad de comidas: ${data.cantidad_comidas}
+                - Edad: ${edad}
+                - Sexo: ${sexo}
+                - Altura: ${perfil.altura} (m)
+                - Peso: ${perfil.peso} (kg)
+                - Tipo de entrenamiento: ${tipo_ejercicio[0].descripcion}
+                - Afecciones: ${afeccionesFormateadas}
+                - Metabolismo basal: ${metabolismoBasal} kcal
+                - Objetivo: ${objetivo[0].descripcion}
+                - País: Paraguay
+
+                INSTRUCCIONES:
+
+                1. CALCULAR:
+                - Gasto energético total (GET) usando factor de actividad adecuado.
+                - Déficit o superávit calórico según objetivo:
+                - Definición: déficit moderado (15–25%)
+                - Volumen: superávit controlado (5–15%)
+                - Recomposición: mantenimiento o leve ajuste
+
+                2. DISTRIBUCIÓN DE MACRONUTRIENTES:
+                - Proteína: 1.8 – 2.5 g/kg
+                - Grasas: 0.8 – 1 g/kg
+                - Carbohidratos: restante calórico
+                - Mostrar en:
+                - gramos
+                - kcal
+                - porcentaje
+
+                3. MICRONUTRIENTES:
+                - Incluir recomendaciones de:
+                - fibra (g/día)
+                - sodio
+                - potasio
+                - hidratación
+                - Ajustar según afecciones si existen
+
+                4. PLAN ALIMENTICIO:
+                Generar ${data.cantidad_comidas} comidas estructuradas con:
+                - Opciones intercambiables
+                - Cantidades exactas en gramos
+                - Alimentos accesibles en Paraguay:
+                (ej: arroz, mandioca, carne, pollo, huevo, pan, frutas locales, etc.)
+
+                Formato por comida:
+                - Nombre de comida
+                - Alimentos + gramos
+                - Alternativas equivalentes
+
+                5. PLAN DE ENTRENAMIENTO:
+                Basado en: ${tipo_ejercicio[0].descripcion}
+
+                Incluir:
+                - Frecuencia semanal
+                - División muscular
+                - Volumen (series efectivas)
+                - Rango de repeticiones
+                - Intensidad (RIR / fallo)
+                - Métodos avanzados (opcional: cluster, back-off, etc.)
+                - Progresión semanal
+
+                6. SUPLEMENTACIÓN (opcional pero recomendada):
+                - Creatina
+                - Proteína whey
+                - Omega 3
+                - Vitamina D
+                - Otros según objetivo
+
+                7. ESTRATEGIA DE SEGUIMIENTO:
+                - Indicadores clave:
+                - peso
+                - medidas
+                - rendimiento
+                - Ajustes cada 2 semanas
+
+                8. OUTPUT FORMAT:
+                Responder en formato estructurado claro:
+
+                SECCIONES:
+                1. Resumen del paciente
+                2. Calorías y macros
+                3. Plan alimenticio
+                4. Micronutrientes
+                5. Entrenamiento
+                6. Suplementación
+                7. Estrategia de seguimiento
+
+                IMPORTANTE:
+                - Ser específico, técnico y aplicable.
+                - Evitar generalidades.
+                - No usar lenguaje ambiguo.
+                `;
+
+console.log(message);
         // Resultado del plan generado por la API
-        const resultado = await chatgptReq(message);
+        const resultado = await chatgptReq(message, Plan);
 
         if(resultado != null){
             // Se genera el registro de cabecera del plan
@@ -317,6 +418,9 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 }
             },
             ingredientes: {
+                where: {
+                    estado: true
+                },
                 select: {
                     comida: true,
                     id_ingrediente: true,
@@ -326,6 +430,8 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                     grasa: true,
                     proteinas: true,
                     carbohidratos: true,
+                    id_sustituto: true,
+                    medida_sustituto: true,
                 },
             },
             suplementos: {
@@ -345,7 +451,7 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
 
     if(plan != null){
         // Obtener los micronutrientes de los ingredientes
-        const ingredientes: IngredienteDto[] = [];
+        const ingredientes: ComposicionIngredienteDto[] = [];
         for(const ingrediente of plan.ingredientes){
             const micronutrientes = await prisma.ingrediente_Micronutriente.findMany({
                 where: {
@@ -360,7 +466,7 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 }
             });
 
-            const resultado: IngredienteDto = new IngredienteDto(
+            const resultado: ComposicionIngredienteDto = new ComposicionIngredienteDto(
                 ingrediente.comida,
                 ingrediente.id_ingrediente,                
                 ingrediente.ingrediente.descripcion,
@@ -371,13 +477,16 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 ingrediente.carbohidratos,
                 ingrediente.grasa,
                 micronutrientes.map((e) => e.micronutriente.descripcion),
+                ingrediente.id_sustituto?? undefined,
+                undefined,
+                ingrediente.medida_sustituto?? undefined
             );
 
             ingredientes.push(resultado);
         }
 
         // Obtener los micronutrientes de los suplementos
-        const suplementos: SuplementoDto[] = [];
+        const suplementos: ComposicionSuplementoDto[] = [];
         for(const suplemento of plan.suplementos){
             const micronutrientes = await prisma.suplemento_Micronutriente.findMany({
                 where: {
@@ -392,7 +501,7 @@ export const obtenerPlanActualService = async (id_usuario: number) => {
                 }
             }); 
 
-            const resultado: SuplementoDto = new SuplementoDto(
+            const resultado: ComposicionSuplementoDto = new ComposicionSuplementoDto(
                 suplemento.id_suplemento,
                 suplemento.suplemento.descripcion,
                 suplemento.medida,

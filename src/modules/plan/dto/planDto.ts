@@ -1,6 +1,6 @@
-import { EjercicioDto } from "./ejercicioDto";
-import { IngredienteDto } from "./ingredienteDto";
-import { SuplementoDto } from "./suplementoDto";
+import { ComposicionIngredienteDto } from "../../../shared/dto/composicionIngredienteDto";
+import { ComposicionSuplementoDto } from "../../../shared/dto/composicionSuplementoDto";
+import { EjercicioDto } from "../../../shared/dto/ejercicioDto";
 
 export class PlanDto {
         id_plan: number;
@@ -9,8 +9,8 @@ export class PlanDto {
         fecha: Date;
         cantidad_comida: number;
         peso_inicial: number;
-        ingredientes: IngredienteDto[];
-        suplementos: SuplementoDto[];
+        ingredientes: ComposicionIngredienteDto[];
+        suplementos: ComposicionSuplementoDto[];
         ejercicios: EjercicioDto[];
         peso_final?: number | undefined;
         calificacion?: number | undefined;
@@ -23,8 +23,8 @@ export class PlanDto {
             fecha: Date,
             cantidad_comida: number,
             peso_inicial: number,
-            ingredientes: IngredienteDto[],
-            suplementos: SuplementoDto[],
+            ingredientes: ComposicionIngredienteDto[],
+            suplementos: ComposicionSuplementoDto[],
             ejercicios: EjercicioDto[],
             peso_final?: number | undefined,
             calificacion?: number | undefined,

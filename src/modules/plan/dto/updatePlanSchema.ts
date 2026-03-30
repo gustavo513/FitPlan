@@ -8,3 +8,5 @@ export const UpdatePlanSchema = z.object({
         comentario: z.string().optional()
     })
 });
+
+export type updatePlanSchema = z.infer<typeof UpdatePlanSchema.shape.body>;

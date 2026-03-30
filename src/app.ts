@@ -6,6 +6,7 @@ import afeccionRouter from './modules/afeccion/afeccionRoutes';
 import autenticacionGoogleRouter from "./modules/autenticacion/autenticacionGoogleRoutes";
 import autenticacionRouter from "./modules/autenticacion/autenticacionRoutes";
 import "./modules/autenticacion/passportGoogle";
+import ingredienteRouter from "./modules/ingrediente/ingredienteRoutes";
 import objetivoRouter from './modules/objetivo/objetivoRoutes';
 import perfilRouter from "./modules/perfil/perfilRoutes";
 import planRouter from './modules/plan/planRoutes';
@@ -39,6 +40,7 @@ app.use('/preferencias-alimentarias', prefAlimRouter);
 app.use('/tipos-ejercicios', tipoEjercicioRouter);
 app.use('/objetivos', objetivoRouter);
 app.use('/plan', planRouter);
+app.use('/ingrediente', ingredienteRouter);
 
 app.listen(3000, "0.0.0.0", () => {
     console.log("El servidor se está ejecutando en el puerto 3000");

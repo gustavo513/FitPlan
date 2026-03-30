@@ -40,10 +40,18 @@ const PlanEjercicio = z.object({
   peso: z.number(),
 });
 
-const Plan = z.object({
+export const Plan = z.object({
   comidas: z.array(PlanIngrediente),
   suplementos: z.array(PlanSuplemento),
   ejercicios: z.array(PlanEjercicio)
 });
 
-export default Plan;
+export const Sustituto = z.object({
+  nombre_original: z.string(),
+  nombre_sustituto: z.string(),
+  medida: z.number(),
+  grasas: z.number(),
+  proteinas: z.number(),
+  carbohidratos: z.number(),
+  micronutrientes: z.array(Micronutriente)
+});

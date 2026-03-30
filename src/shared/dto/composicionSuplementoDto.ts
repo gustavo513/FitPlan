@@ -1,5 +1,5 @@
 
-export class SuplementoDto {
+export class ComposicionSuplementoDto {
     id_suplemento: number;
     descripcion: string;    
     medida: number;
