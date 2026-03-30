@@ -108,6 +108,7 @@ model PrefAlim {
   id_pref_alim Int               @id @default(autoincrement())
   descripcion  String
   perfil       Perfil_PrefAlim[]
+  plan         Plan[]
 
   @@map("preferencia_alimentaria")
 }
@@ -176,22 +177,26 @@ model Perfil_Afeccion {
 }
 
 model Plan {
-  id_plan              Int                @id @default(autoincrement())
-  fecha                DateTime           @default(now())
-  cant_comida          Int
-  peso_inicial         Float
-  peso_final           Float
-  calificacion         Float
-  comentario           String?
-  estado               Int
-  id_usuario           Int
-  id_objetivo          Int
-  objetivo             Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
-  usuario              Usuario            @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
-  ejercicios           Plan_Ejercicio[]
-  ingredientes         Plan_Ingrediente[]
-  suplementos          Plan_Suplemento[]
-  usuariosSupervisores Supervision_Plan[]
+  id_plan                    Int                @id @default(autoincrement())
+  fecha                      DateTime           @default(dbgenerated("CURRENT_DATE")) @db.Date
+  cant_comida                Int
+  peso_inicial               Float
+  peso_final                 Float?
+  calificacion               Int?
+  comentario                 String?
+  estado                     Int?               @default(1)
+  id_usuario                 Int
+  id_objetivo                Int
+  id_preferencia_alimentaria Int
+  fecha_registro             DateTime?          @db.Timestamp(6)
+  plan_estado                plan_estado?       @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_estado_fkey")
+  objetivo                   Objetivo           @relation(fields: [id_objetivo], references: [id_objetivo])
+  preferencia_alimentaria    PrefAlim           @relation(fields: [id_preferencia_alimentaria], references: [id_pref_alim], onDelete: NoAction, onUpdate: NoAction, map: "plan_id_pref_alimentaria_fkey")
+  usuario                    Usuario            @relation("PlanUsuario", fields: [id_usuario], references: [id_usuario])
+  ejercicios                 Plan_Ejercicio[]
+  ingredientes               Plan_Ingrediente[]
+  suplementos                Plan_Suplemento[]
+  usuariosSupervisores       Supervision_Plan[]
 
   @@map("plan")
 }
@@ -219,8 +224,6 @@ model Objetivo {
 model Ejercicio {
   id_ejercicio      Int              @id @default(autoincrement())
   descripcion       String           @unique
-  duracion          Int
-  peso              Float?
   id_tipo_ejercicio Int
   tipo_ejercicio    TipoEjercicio    @relation(fields: [id_tipo_ejercicio], references: [id_tipo_ejercicio])
   planes            Plan_Ejercicio[]
@@ -239,6 +242,8 @@ model TipoEjercicio {
 model Plan_Ejercicio {
   id_ejercicio Int
   id_plan      Int
+  duracion     Int
+  peso         Float?
   ejercicio    Ejercicio @relation(fields: [id_ejercicio], references: [id_ejercicio])
   plan         Plan      @relation(fields: [id_plan], references: [id_plan])
 
@@ -247,26 +252,33 @@ model Plan_Ejercicio {
 }
 
 model Ingrediente {
-  id_ingrediente  Int                          @id @default(autoincrement())
-  descripcion     String                       @unique
-  micronutrientes Ingrediente_Micronutriente[]
-  planes          Plan_Ingrediente[]
+  id_ingrediente                                                          Int                          @id @default(autoincrement())
+  descripcion                                                             String                       @unique
+  micronutrientes                                                         Ingrediente_Micronutriente[]
+  ingrediente_sustituto_ingrediente_sustituto_id_ingredienteToingrediente ingrediente_sustituto[]      @relation("ingrediente_sustituto_id_ingredienteToingrediente")
+  ingrediente_sustituto_ingrediente_sustituto_id_sustitutoToingrediente   ingrediente_sustituto[]      @relation("ingrediente_sustituto_id_sustitutoToingrediente")
+  planes                                                                  Plan_Ingrediente[]
+  plan_ingrediente_plan_ingrediente_id_sustitutoToingrediente             Plan_Ingrediente[]           @relation("plan_ingrediente_id_sustitutoToingrediente")
 
   @@map("ingrediente")
 }
 
 model Plan_Ingrediente {
-  id_ingrediente   Int
-  id_plan          Int
-  comida           Int
-  medida           Float
-  id_unidad_medida Int
-  grasa            Float
-  proteinas        Float
-  carbohidratos    Float
-  ingrediente      Ingrediente  @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  plan             Plan         @relation(fields: [id_plan], references: [id_plan])
-  unidad_medida    UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
+  id_ingrediente                                         Int
+  id_plan                                                Int
+  comida                                                 String       @db.VarChar
+  medida                                                 Float
+  id_unidad_medida                                       Int
+  grasa                                                  Float
+  proteinas                                              Float
+  carbohidratos                                          Float
+  id_sustituto                                           Int?
+  medida_sustituto                                       Float?
+  estado                                                 Boolean?     @default(true)
+  ingrediente                                            Ingrediente  @relation(fields: [id_ingrediente], references: [id_ingrediente])
+  plan                                                   Plan         @relation(fields: [id_plan], references: [id_plan])
+  ingrediente_plan_ingrediente_id_sustitutoToingrediente Ingrediente? @relation("plan_ingrediente_id_sustitutoToingrediente", fields: [id_sustituto], references: [id_ingrediente], onDelete: NoAction, onUpdate: NoAction, map: "plan_ingrediente_id_sustituto_id_ingrediente_fk")
+  unidad_medida                                          UnidadMedida @relation(fields: [id_unidad_medida], references: [id_unidad_medida])
 
   @@id([id_ingrediente, id_plan])
   @@map("plan_ingrediente")
@@ -300,27 +312,18 @@ model Suplemento {
 model UnidadMedida {
   id_unidad_medida Int                @id @default(autoincrement())
   descripcion      String             @unique
-  abreviatura      String
+  abreviatura      String             @unique(map: "uq_unidad_medida_abreviatura")
   plan_ingrediente Plan_Ingrediente[]
   plan_suplemento  Plan_Suplemento[]
 
   @@map("unidad_medida")
 }
 
-model Micronutriente {
-  id_micronutriente Int                          @id @default(autoincrement())
-  descripcion       String                       @unique
-  ingredientes      Ingrediente_Micronutriente[]
-  suplementos       Suplemento_Micronutriente[]
-
-  @@map("macronutriente")
-}
-
 model Ingrediente_Micronutriente {
   id_ingrediente    Int
   id_micronutriente Int
   ingrediente       Ingrediente    @relation(fields: [id_ingrediente], references: [id_ingrediente])
-  micronutriente    Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  micronutriente    micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
 
   @@id([id_ingrediente, id_micronutriente])
   @@map("ingrediente_macronutriente")
@@ -329,7 +332,7 @@ model Ingrediente_Micronutriente {
 model Suplemento_Micronutriente {
   id_suplemento     Int
   id_micronutriente Int
-  micronutriente    Micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
+  micronutriente    micronutriente @relation(fields: [id_micronutriente], references: [id_micronutriente])
   suplemento        Suplemento     @relation(fields: [id_suplemento], references: [id_suplemento])
 
   @@id([id_suplemento, id_micronutriente])
@@ -342,6 +345,30 @@ model registro_error {
   message        String
   errors         String?
   fecha_registro DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+}
+
+model plan_estado {
+  id          Int     @id
+  descripcion String  @db.VarChar(50)
+  observacion String?
+  plan        Plan[]
+}
+
+model micronutriente {
+  id_micronutriente Int                          @id(map: "macronutriente_pkey") @default(autoincrement())
+  descripcion       String                       @unique(map: "macronutriente_descripcion_key")
+  ingredientes      Ingrediente_Micronutriente[]
+  suplementos       Suplemento_Micronutriente[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ingrediente_sustituto {
+  id_ingrediente                                                Int
+  id_sustituto                                                  Int
+  ingrediente_ingrediente_sustituto_id_ingredienteToingrediente Ingrediente @relation("ingrediente_sustituto_id_ingredienteToingrediente", fields: [id_ingrediente], references: [id_ingrediente], onDelete: NoAction, onUpdate: NoAction, map: "fk_ingrediente_sustituto_id_ingrediente")
+  ingrediente_ingrediente_sustituto_id_sustitutoToingrediente   Ingrediente @relation("ingrediente_sustituto_id_sustitutoToingrediente", fields: [id_sustituto], references: [id_ingrediente], onDelete: NoAction, onUpdate: NoAction, map: "fk_ingrediente_sustituto_id_sustituto")
+
+  @@id([id_ingrediente, id_sustituto], map: "pk_ingrediente_sustituto")
 }
 
 enum genero {

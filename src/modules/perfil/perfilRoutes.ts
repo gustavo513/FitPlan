@@ -9,10 +9,10 @@ import { createPerfilSchema } from './dto/createPerfilSchema';
 import { updatePerfilSchema } from './dto/updatePerfilSchema';
 
 import {
-    miPerfil,
-    obtener,
+    actualizar,
     agregar,
-    actualizar
+    miPerfil,
+    obtener
 } from './perfilController';
 
 const router = Router();

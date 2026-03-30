@@ -59,4 +59,8 @@ INSERT INTO public."Objetivo"(descripcion) VALUES ('Aumentar masa muscular');
 INSERT INTO public."TipoEjercicio"(descripcion) VALUES ('Cardio');
 INSERT INTO public."TipoEjercicio"(descripcion) VALUES ('Fuerza');
 
+-- ESTADOS DE PLANES
+INSERT INTO fitplan.plan_estado (1, 'Activo', 'Plan actual vigente para el usuario por 30 días.');
+INSERT INTO fitplan.plan_estado (2, 'Vencido', 'Plan vencido al cumplir los 30 días. Estado para aguardar la calificación del plan por parte del usuario y la actualización de su peso final.');
+INSERT INTO fitplan.plan_estado (3, 'Inactivo', 'El plan queda inactivo luego de que el usuario cargue su peso final y haya calificado el plan. Habilita al usuario para generar el nuevo plan.');
 

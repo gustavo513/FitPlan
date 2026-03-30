@@ -1,7 +1,6 @@
 import { genero, PrismaClient } from '@prisma/client';
-import { UpdatePerfilSchema } from './dto/updatePerfilSchema';
-import { afeccionSchema } from '../afeccion/afeccionSchema';
 import { CreatePerfilSchema } from './dto/createPerfilSchema';
+import { UpdatePerfilSchema } from './dto/updatePerfilSchema';
 
 const prisma = new PrismaClient();
 
